@@ -1,3 +1,12 @@
+pub mod console {
+    pub mod button;
+    pub mod components;
+    pub mod console;
+    pub mod console_state;
+    pub mod led;
+    pub mod switch;
+}
+
 pub mod cpu {
     pub mod alu;
     pub mod instruction;
@@ -22,15 +31,16 @@ pub mod interrupt {
 }
 
 pub mod io {
-    pub mod io_host_controller;
-    pub mod io_map_addr;
-    pub mod device {
-        pub mod logger;
-        pub mod sd_host_controller;
-        pub mod terminal_io;
-        pub mod timer;
-        pub mod timer_core;
-    }
+    // pub mod io_host_controller;
+    // pub mod io_map_addr;
+    // pub mod device {
+    //     pub mod logger;
+    //     pub mod sd_host_controller;
+    //     pub mod stdout;
+    //     pub mod terminal_io;
+    //     pub mod timer;
+    //     pub mod timer_core;
+    // }
 }
 
 pub mod memory {

@@ -1,3 +1,4 @@
+#[derive(Copy, Clone, PartialEq)]
 pub enum Interrupt {
     TIMER0,
     TIMER1,

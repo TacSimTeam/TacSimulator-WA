@@ -1,19 +1,26 @@
 use crate::core::interrupt::interrupt::Interrupt;
 use crate::core::interrupt::intr_controller::IntrController;
+use std::sync::{Arc, Mutex};
+
+#[derive(Clone, PartialEq)]
+pub enum TimerNum {
+    TIMER0,
+    TIMER1,
+}
 
 #[derive(Clone)]
 pub struct TimerCore {
-    pub count: u32,
-    pub cycle: u32,
-    pub timer_num: u8,
+    pub count: u16,
+    pub cycle: u16,
+    pub timer_num: TimerNum,
     pub match_flag: bool,
     pub intr_flag: bool,
     pub pause_flag: bool,
-    pub intr_sig: IntrController,
+    pub intr_sig: Arc<Mutex<IntrController>>,
 }
 
 impl TimerCore {
-    pub fn new(timer_num: u8, intr_sig: IntrController) -> Self {
+    pub fn new(timer_num: TimerNum, intr_sig: Arc<Mutex<IntrController>>) -> Self {
         Self {
             count: 0,
             cycle: 0,
@@ -25,16 +32,12 @@ impl TimerCore {
         }
     }
 
-    pub fn get_count(&self) -> u32 {
+    pub fn get_count(&self) -> u16 {
         self.count
     }
 
-    pub fn set_cycle(&mut self, cycle: u32) {
+    pub fn set_cycle(&mut self, cycle: u16) {
         self.cycle = cycle;
-    }
-
-    pub fn set_intr_flag(&mut self, flag: bool) {
-        self.intr_flag = flag;
     }
 
     pub fn is_matched(&self) -> bool {
@@ -49,14 +52,11 @@ impl TimerCore {
         if self.count == self.cycle {
             self.count = 0;
             self.match_flag = true;
-
-            if self.intr_flag {
-                // TODO タイマーの番号に応じて割り込みの種類を変える. Fromトレイトを実装できればベストだけど一旦ifで処理
-                if self.timer_num == 0 {
-                    self.intr_sig.interrupt(Interrupt::TIMER0)
-                } else {
-                    self.intr_sig.interrupt(Interrupt::TIMER1);
-                }
+            let mut clone = self.intr_sig.lock().unwrap();
+            if self.timer_num == TimerNum::TIMER0 {
+                clone.interrupt(Interrupt::TIMER0);
+            } else {
+                clone.interrupt(Interrupt::TIMER1);
             }
         } else {
             self.count += 1;

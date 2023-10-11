@@ -1,3 +1,4 @@
+use std::sync::{Arc, Mutex};
 use crate::core::cpu::psw::Psw;
 
 pub struct Register {
@@ -5,11 +6,11 @@ pub struct Register {
     fp: u16,
     ssp: u16,
     usp: u16,
-    priv_sig: Psw,
+    priv_sig: Arc<Mutex<Psw>>,
 }
 
 impl Register {
-    pub fn new(priv_sig: Psw) -> Self {
+    pub fn new(priv_sig: Arc<Mutex<Psw>>) -> Self {
         Self {
             generals: vec![0; 12],
             fp: 0,
@@ -19,11 +20,11 @@ impl Register {
         }
     }
 
-    fn read(&self, num: u8) -> u16 {
+    pub fn read(&self, num: u8) -> u16 {
         match num {
             12 => self.fp,
             13 => {
-                if self.priv_sig.get_priv_flag() {
+                if self.priv_sig.lock().unwrap().get_priv_flag() {
                     self.ssp
                 } else {
                     self.usp
@@ -34,7 +35,7 @@ impl Register {
         }
     }
 
-    fn write(&mut self, num: u8, val: u16) {
+    pub fn write(&mut self, num: u8, val: u16) {
         match num {
             12 => self.fp = val & 0xffff,
             13 => {

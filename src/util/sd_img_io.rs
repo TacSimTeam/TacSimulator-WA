@@ -1,7 +1,7 @@
-use regex::Regex;
-use gloo::file::File;
-use crate::core::error::sd_io_error::SdIoError;
 use crate::core::consts::SECTOR_SIZE;
+use crate::core::error::sd_io_error::SdIoError;
+use gloo::file::File;
+use regex::Regex;
 
 #[derive(Clone, PartialEq)]
 pub struct SDImgIo {
@@ -18,19 +18,22 @@ impl SDImgIo {
         return if self.buf.is_none() {
             Err(SdIoError::SdIsNotOpen)
         } else {
-            Ok(self.buf.as_ref().unwrap()[(SECTOR_SIZE * sect_addr) as usize..(SECTOR_SIZE * (sect_addr + 1)) as usize].to_vec())
-        }
+            Ok(self.buf.as_ref().unwrap()
+                [(SECTOR_SIZE * sect_addr) as usize..(SECTOR_SIZE * (sect_addr + 1)) as usize]
+                .to_vec())
+        };
     }
 
     pub fn write_sect(&mut self, sect_addr: u32, data: Vec<u8>) -> Result<(), SdIoError> {
         if self.buf.is_none() {
-            return Err(SdIoError::SdIsNotOpen)
+            return Err(SdIoError::SdIsNotOpen);
         } else {
             for i in 0..SECTOR_SIZE {
-                self.buf.as_mut().unwrap()[(sect_addr * SECTOR_SIZE + i) as usize] = data[i as usize];
+                self.buf.as_mut().unwrap()[(sect_addr * SECTOR_SIZE + i) as usize] =
+                    data[i as usize];
             }
         }
-        return  Ok(())
+        return Ok(());
     }
 
     pub fn open_file(&mut self, file_path: String) -> Result<(), SdIoError> {
@@ -47,7 +50,7 @@ impl SDImgIo {
     }
 
     pub fn is_loaded(&self) -> bool {
-        return self.buf.is_some()
+        return self.buf.is_some();
     }
 
     pub fn get_file_name(&self) -> String {

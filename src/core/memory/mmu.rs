@@ -24,12 +24,12 @@ impl Mmu {
             memory,
             intr_sig,
             priv_sig,
-            tlbs: vec![TlbEntry::new(0);TLB_ENTRY_SIZE as usize],
+            tlbs: vec![TlbEntry::new(0); TLB_ENTRY_SIZE as usize],
             ipl_mode: false,
             mmu_mode: false,
             err_addr: 0,
             err_cause: 0u8,
-            tlb_miss_page: 0
+            tlb_miss_page: 0,
         }
     }
 

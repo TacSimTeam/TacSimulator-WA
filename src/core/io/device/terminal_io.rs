@@ -26,17 +26,16 @@ impl TerminalIO {
 }
 
 impl IIOSerial for TerminalIO {
-    fn receive(&mut self, _val: u8) -> u8 {
+    fn receive(&mut self) -> u8 {
         self.empty_flag = true;
         self.buf
     }
 
     fn send(&mut self, val: u8) {
         if val == 0x08 {
-            self.terminal.set_inner_text(
-                &(self.terminal.value()
-                    + &self.terminal.value()[..self.terminal.value().len() - 1]),
-            );
+            // バックスペース
+            self.terminal
+                .set_inner_text(&(&self.terminal.value()[..self.terminal.value().len() - 1]));
         } else {
             let ch = std::char::from_u32(val as u32)
                 .unwrap()
@@ -49,7 +48,7 @@ impl IIOSerial for TerminalIO {
         }
 
         if self.sendable_intr_flag {
-            self.intr_sig.interrupt(Interrupt::RN4020_SENT);
+            self.intr_sig.interrupt(Interrupt::FT232RL_SENT);
         }
     }
 
