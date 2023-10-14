@@ -1,20 +1,21 @@
-use std::sync::{Arc, Mutex};
+use crate::core::console::components::Components;
+use crate::core::console::console_state::ConsoleState;
 use crate::core::cpu::psw::Psw;
+use crate::core::cpu::register::Register;
 use crate::core::memory::memory::Memory;
 use crate::util::image::load_image;
+use std::cell::RefCell;
+use std::panic::catch_unwind;
+use std::rc::Rc;
 use wasm_bindgen::JsCast;
 use web_sys::{CanvasRenderingContext2d, HtmlCanvasElement, HtmlImageElement};
 use yew::{html, Component, Context, Html, MouseEvent, NodeRef, Properties};
-use crate::core::console::components::Components;
-use crate::core::console::console_state::ConsoleState;
-use crate::core::cpu::register::Register;
 
 pub struct Console {
     ctx: NodeRef,
-    rot_current: u8,
-    mem_addr: u16,
     state: ConsoleState,
-    components: Components
+    components: Components,
+    image: Option<HtmlImageElement>
 }
 
 pub enum Msg {
@@ -25,9 +26,68 @@ pub enum Msg {
 
 #[derive(PartialEq, Properties)]
 pub struct Props {
-    pub memory: Arc<Mutex<Memory>>,
-    pub psw: Arc<Mutex<Psw>>,
-    pub register: Arc<Mutex<Register>>
+    pub memory: Rc<RefCell<Memory>>,
+    pub psw: Rc<RefCell<Psw>>,
+    pub register: Rc<RefCell<Register>>,
+}
+
+impl Console {
+    pub fn on_click(&mut self, x: i32, y: i32) -> bool {
+        for b in self.components.buttons.iter() {
+            if b.is_btn_clicked(x as f64, y as f64) {
+                b.on_click(&mut self.state);
+                return true;
+            }
+        }
+        for s in self.components.switches.iter_mut() {
+            if s.is_switch_clicked(x as f64, y as f64) {
+                s.toggle_state();
+                return true;
+            }
+        }
+        false
+    }
+
+    fn update(&mut self) {
+        if self.state.run_flag {
+            self.draw_all();
+            return;
+        }
+        self.update_rot_sw();
+        // self.update_led();
+        self.draw_all();
+    }
+
+    fn draw_all(&self) {
+        if self.image.is_some() {
+            let ctx: HtmlCanvasElement = self.ctx.cast().unwrap();
+            let canvas_ctx = ctx.get_context("2d").unwrap().unwrap().dyn_into::<CanvasRenderingContext2d>().unwrap();
+            canvas_ctx.draw_image_with_html_image_element(&self.image.as_ref().unwrap(), 0.0, 0.0).unwrap();
+        }
+        self.components.draw();
+    }
+
+    fn update_rot_sw(&mut self) {
+        for i in 0..6 {
+            if i == self.state.rot_current % 6 {
+                self.components.register_led[i as usize].set_state(true);
+            } else {
+                self.components.register_led[i as usize].set_state(false);
+            }
+        }
+
+        for i in 0..3 {
+            if i == self.state.rot_current / 6 {
+                self.components.flag_led[i as usize].set_state(true);
+            } else {
+                self.components.flag_led[i as usize].set_state(false);
+            }
+        }
+    }
+
+    fn update_led(&mut self) {
+        todo!()
+    }
 }
 
 impl Component for Console {
@@ -42,22 +102,26 @@ impl Component for Console {
                 Msg::FetchFail
             }
         });
-        let Props {memory, psw, register} = ctx.props();
-        let memory = Arc::clone(memory);
-        let psw = Arc::clone(psw);
-        let register = Arc::clone(register);
+        let Props {
+            memory,
+            psw,
+            register,
+        } = ctx.props();
+        let memory = Rc::clone(memory);
+        let psw = Rc::clone(psw);
+        let register = Rc::clone(register);
         Self {
             ctx: NodeRef::default(),
-            rot_current: 0u8,
-            mem_addr: 0u16,
             state: ConsoleState::new(memory, psw, register),
-            components: Components::new()
+            components: Components::new(),
+            image: None
         }
     }
 
     fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
         match msg {
             Msg::FetchOk(image) => {
+                self.image = Some(image.clone());
                 let canvas: HtmlCanvasElement = self.ctx.cast().unwrap();
                 let canvas_ctx = canvas
                     .get_context("2d")
@@ -74,8 +138,12 @@ impl Component for Console {
                 true
             }
             Msg::Clicked((x, y)) => {
-                // TODO ここから座標を元にどれがクリックされたか決める
+                // TODO 各コンポーネントのonclickに座標を渡してまわる
                 gloo::console::log!(format!("clicked {} {}", x, y));
+                if self.on_click(x, y) {
+                    self.update();
+                    return true;
+                }
                 false
             }
             _ => false,

@@ -1,17 +1,16 @@
-use web_sys::CanvasRenderingContext2d;
 use crate::core::console::button::{Button, ConsoleEventType};
+use crate::core::console::console_state::{ConsoleState, IConsoleState};
 use crate::core::console::led::{Led, LedColor};
 use crate::core::console::switch::Switch;
-use crate::core::console::console_state::IConsoleState;
+use web_sys::CanvasRenderingContext2d;
 
 pub struct Components {
-    addr_led: Vec<Led>,
-    buttons: Vec<Button>,
-    data_led: Vec<Led>,
-    flag_led: Vec<Led>,
-    register_led: Vec<Led>,
-    switches: Vec<Switch>,
-
+    pub addr_led: Vec<Led>,
+    pub buttons: Vec<Button>,
+    pub data_led: Vec<Led>,
+    pub flag_led: Vec<Led>,
+    pub register_led: Vec<Led>,
+    pub switches: Vec<Switch>,
 }
 
 impl Components {
@@ -22,7 +21,7 @@ impl Components {
             data_led: Vec::default(),
             flag_led: Vec::default(),
             register_led: Vec::default(),
-            switches: Vec::default()
+            switches: Vec::default(),
         }
     }
 
@@ -121,9 +120,16 @@ impl Components {
         self.switches
             .push(Switch::new(96.0, 312.0, canvas_ctx.clone()));
 
+        // 初期
+        self.register_led[0].set_state(true);
+
         // 以降はイベントの追加
         self.buttons[0].set_event(IConsoleState::left_allow_btn_event);
         self.buttons[1].set_event(IConsoleState::right_allow_btn_event);
+        self.buttons[5].set_event(IConsoleState::seta_btn_event);
+        self.buttons[6].set_event(IConsoleState::inca_btn_event);
+        self.buttons[7].set_event(IConsoleState::deca_btn_event);
+        self.buttons[8].set_event(IConsoleState::write_btn_event);
     }
 
     pub fn draw(&self) {

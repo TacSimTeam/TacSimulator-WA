@@ -1,5 +1,6 @@
 use crate::core::cpu::consts::flags::Flags;
 
+#[derive(Clone, Debug, PartialEq)]
 pub struct Psw {
     pc: u16,
     flag: u8,

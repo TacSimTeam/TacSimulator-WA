@@ -1,16 +1,18 @@
-use std::sync::{Arc, Mutex};
 use crate::core::cpu::psw::Psw;
+use std::cell::RefCell;
+use std::rc::Rc;
 
+#[derive(Clone, Debug, PartialEq)]
 pub struct Register {
     generals: Vec<u16>,
     fp: u16,
     ssp: u16,
     usp: u16,
-    priv_sig: Arc<Mutex<Psw>>,
+    priv_sig: Rc<RefCell<Psw>>,
 }
 
 impl Register {
-    pub fn new(priv_sig: Arc<Mutex<Psw>>) -> Self {
+    pub fn new(priv_sig: Rc<RefCell<Psw>>) -> Self {
         Self {
             generals: vec![0; 12],
             fp: 0,
@@ -24,7 +26,7 @@ impl Register {
         match num {
             12 => self.fp,
             13 => {
-                if self.priv_sig.lock().unwrap().get_priv_flag() {
+                if self.priv_sig.borrow().get_priv_flag() {
                     self.ssp
                 } else {
                     self.usp
@@ -39,7 +41,7 @@ impl Register {
         match num {
             12 => self.fp = val & 0xffff,
             13 => {
-                if self.priv_sig.get_priv_flag() {
+                if self.priv_sig.borrow().get_priv_flag() {
                     self.ssp = val & 0xffff
                 } else {
                     self.usp = val & 0xffff

@@ -1,10 +1,10 @@
 use crate::core::console::console::Console;
+use crate::core::console::console_state::ConsoleState;
 use std::default::Default;
 use wasm_bindgen::closure::WasmClosure;
 use wasm_bindgen::{JsCast, JsValue};
 use web_sys::{CanvasRenderingContext2d, HtmlCanvasElement, Node};
 use yew::{Html, NodeRef};
-use crate::core::console::console_state::ConsoleState;
 
 const BUTTON_WIDTH: f64 = 30.0;
 const BUTTON_HEIGHT: f64 = 36.0;
@@ -32,8 +32,6 @@ pub struct Button {
     ctx: CanvasRenderingContext2d,
     event: Option<ConsoleEventType>,
 }
-
-fn default_func() {}
 
 impl Button {
     pub fn new(pos_x: f64, pos_y: f64, ctx: CanvasRenderingContext2d) -> Self {
@@ -86,8 +84,8 @@ impl Button {
         self.event = Some(f);
     }
 
-    pub fn on_click(&mut self, click_x: f64, click_y: f64, state: &mut ConsoleState) {
-        if self.is_btn_clicked(click_x, click_y) && self.event.is_some() {
+    pub fn on_click(&self, state: &mut ConsoleState) {
+        if self.event.is_some() {
             (self.event.unwrap())(state);
         }
     }
