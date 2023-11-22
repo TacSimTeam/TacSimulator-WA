@@ -8,7 +8,7 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.75"
 futures = "0.3.28"
-gloo = "0.10.0"
+gloo = { version = "0.10.0", features = ["timers"] }
 log = "0.4.20"
 regex = "1.9.3"
 reqwest = { version = "0.11.20", features = ["blocking"] }
@@ -16,4 +16,10 @@ trunk = "0.17.5"
 wasm-bindgen = "0.2.87"
 wasm-logger = "0.2.0"
 web-sys = { version = "0.3.64", features = ["HtmlInputElement", "Document", "console", "HtmlImageElement", "CanvasRenderingContext2d", "HtmlCanvasElement"] }
-yew = { version = "0.20.0", features = ["csr"] }
+yew = { version = "0.21.0", features = ["csr"] }
+
+[profile.release]
+panic = 'abort'
+codegen-units = 1
+opt-level = 's'
+lto = true
