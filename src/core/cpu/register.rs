@@ -38,6 +38,7 @@ impl Register {
     }
 
     pub fn write(&mut self, num: u8, val: u16) {
+        gloo::console::log!("core/cpu/cpu/register write");
         match num {
             12 => self.fp = val & 0xffff,
             13 => {
@@ -52,7 +53,7 @@ impl Register {
         }
     }
 
-    fn reset(&mut self) {
+    pub fn reset(&mut self) {
         self.generals.fill(0);
         self.fp = 0;
         self.ssp = 0;

@@ -1,6 +1,6 @@
 use crate::core::interrupt::interrupt::Interrupt;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct IntrController {
     intr_flags: Vec<bool>,
 }
@@ -20,7 +20,7 @@ impl IntrController {
         self.intr_flags[intr_num as usize] = true;
     }
 
-    fn check_intr_num(&mut self) -> Option<u8> {
+    pub fn check_intr_num(&mut self) -> Option<u8> {
         for i in 10..=15 {
             if self.intr_flags[i] {
                 self.intr_flags[i] = false;
@@ -37,7 +37,7 @@ impl IntrController {
         None
     }
 
-    fn is_exception_occurred(&self) -> bool {
+    pub fn is_exception_occurred(&self) -> bool {
         for i in 10..=15 {
             if self.intr_flags[i] {
                 return true;

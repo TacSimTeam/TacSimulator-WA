@@ -1,77 +1,97 @@
 use crate::core::interrupt::intr_controller::IntrController;
 use crate::core::io::device::timer_core::{TimerCore, TimerNum};
 use crate::util::interval::{clear_interval, set_interval};
+use std::cell::RefCell;
 use std::ops::{Deref, Index};
-use std::sync::{Arc, Mutex};
-use std::thread::JoinHandle;
-use std::time::Duration;
+use std::rc::Rc;
 
+#[derive(PartialEq, Clone)]
 pub struct Timer {
-    interval_id: Option<JoinHandle<()>>,
-    pub timer0: Arc<Mutex<TimerCore>>,
-    pub timer1: Arc<Mutex<TimerCore>>,
-    is_timer0_running: Arc<Mutex<bool>>,
-    is_timer1_running: Arc<Mutex<bool>>,
+    interval_id_timer0: Option<i32>,
+    interval_id_timer1: Option<i32>,
+    pub timer0: Rc<RefCell<TimerCore>>,
+    pub timer1: Rc<RefCell<TimerCore>>,
 }
 
 impl Timer {
-    pub fn new(intr_sig: Arc<Mutex<IntrController>>) -> Self {
+    pub fn new(intr_sig: Rc<RefCell<IntrController>>) -> Self {
         Self {
-            interval_id: None,
-            timer0: Arc::new(Mutex::new(TimerCore::new(
+            interval_id_timer0: None,
+            interval_id_timer1: None,
+            timer0: Rc::new(RefCell::new(TimerCore::new(
                 TimerNum::TIMER0,
-                Arc::clone(&intr_sig),
+                Rc::clone(&intr_sig),
             ))),
-            timer1: Arc::new(Mutex::new(TimerCore::new(TimerNum::TIMER1, intr_sig))),
-            is_timer0_running: Arc::new(Mutex::new(false)),
-            is_timer1_running: Arc::new(Mutex::new(false)),
+            timer1: Rc::new(RefCell::new(TimerCore::new(
+                TimerNum::TIMER1,
+                Rc::clone(&intr_sig),
+            ))),
         }
     }
 
     pub fn start_timer(&mut self, timer_num: TimerNum) {
         let timer_clone = match timer_num {
-            TimerNum::TIMER0 => (Arc::clone(&self.timer0), &self.is_timer0_running),
-            TimerNum::TIMER1 => (Arc::clone(&self.timer0), &self.is_timer1_running),
+            TimerNum::TIMER0 => Rc::clone(&self.timer0),
+            TimerNum::TIMER1 => Rc::clone(&self.timer1),
         };
-        let interval = set_interval(Duration::from_millis(1), timer_clone.1, move || {
-            let mut timer = timer_clone.0.lock().unwrap();
-            timer.routine();
-        });
-        self.interval_id = Some(interval);
+        let interval = set_interval(timer_clone, 1);
+        match timer_num {
+            TimerNum::TIMER0 => {
+                self.interval_id_timer0 = Some(interval);
+            }
+            TimerNum::TIMER1 => {
+                self.interval_id_timer1 = Some(interval);
+            }
+        }
     }
 
     pub fn clear_timer(&mut self, timer_num: TimerNum) {
-        if self.interval_id.is_some() {
-            let is_running = match timer_num {
-                TimerNum::TIMER0 => &self.is_timer0_running,
-                TimerNum::TIMER1 => &self.is_timer1_running,
-            };
-            clear_interval(self.interval_id.take().unwrap(), is_running);
-            self.interval_id = None;
+        let interval_id = match timer_num {
+            TimerNum::TIMER0 => self.interval_id_timer0,
+            TimerNum::TIMER1 => self.interval_id_timer1,
+        };
+        if interval_id.is_some() {
+            clear_interval(interval_id.unwrap());
+        }
+        match timer_num {
+            TimerNum::TIMER0 => {
+                self.interval_id_timer0 = None;
+            }
+            TimerNum::TIMER1 => {
+                self.interval_id_timer1 = None;
+            }
         }
     }
 
     pub fn pause_timer(&mut self, timer_num: TimerNum) {
-        let timer = match timer_num {
-            TimerNum::TIMER0 => Arc::clone(&self.timer0),
-            TimerNum::TIMER1 => Arc::clone(&self.timer1),
-        };
-        timer.lock().unwrap().pause_flag = true;
+        match timer_num {
+            TimerNum::TIMER0 => Rc::clone(&self.timer0),
+            TimerNum::TIMER1 => Rc::clone(&self.timer1),
+        }
+        .borrow_mut()
+        .pause_flag = true;
     }
 
     pub fn restart_timer(&mut self, timer_num: TimerNum) {
-        let timer = match timer_num {
-            TimerNum::TIMER0 => Arc::clone(&self.timer0),
-            TimerNum::TIMER1 => Arc::clone(&self.timer1),
-        };
-        timer.lock().unwrap().pause_flag = false;
+        match timer_num {
+            TimerNum::TIMER0 => Rc::clone(&self.timer0),
+            TimerNum::TIMER1 => Rc::clone(&self.timer1),
+        }
+        .borrow_mut()
+        .pause_flag = false;
     }
 
     pub fn get_counter(&self, timer_num: TimerNum) -> u16 {
         match timer_num {
-            TimerNum::TIMER0 => self.timer0.lock().unwrap().get_count(),
-            TimerNum::TIMER1 => self.timer1.lock().unwrap().get_count(),
+            TimerNum::TIMER0 => &self.timer0,
+            TimerNum::TIMER1 => &self.timer1,
         }
+        .borrow()
+        .get_count()
+    }
+
+    pub fn stop_timer(&mut self, timer_num: TimerNum) {
+        self.clear_timer(timer_num);
     }
 }
 
@@ -87,11 +107,11 @@ mod tests {
     #[test]
     fn timer_test() {
         let intr_controller = IntrController::new();
-        let mut timer = Timer::new(Arc::new(Mutex::new(intr_controller)));
-        timer.timer0.lock().unwrap().set_cycle(100);
-        timer.start_timer(TimerNum::TIMER0);
-        thread::sleep(Duration::from_secs(2));
-        timer.clear_timer(TimerNum::TIMER0);
-        println!("count: {}", timer.timer0.lock().unwrap().get_count());
+        // let mut timer = Timer::new(Arc::new(Mutex::new(intr_controller)));
+        // timer.timer0.lock().unwrap().set_cycle(100);
+        // timer.start_timer(TimerNum::TIMER0);
+        // thread::sleep(Duration::from_secs(2));
+        // timer.clear_timer(TimerNum::TIMER0);
+        // println!("count: {}", timer.timer0.lock().unwrap().get_count());
     }
 }

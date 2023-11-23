@@ -1,26 +1,29 @@
-use std::sync::{Arc, Mutex};
-use std::thread;
-use std::time::Duration;
+use crate::core::traits::io::device::timer::TimerEvent;
+use std::cell::RefCell;
+use std::rc::Rc;
+use wasm_bindgen::closure::Closure;
+use wasm_bindgen::prelude::wasm_bindgen;
 
-pub fn set_interval<F>(
-    interval: Duration,
-    running: &Arc<Mutex<bool>>,
-    mut callback: F,
-) -> thread::JoinHandle<()>
-where
-    F: FnMut() + Send + 'static,
-{
-    let running_clone = Arc::clone(running);
-
-    thread::spawn(move || {
-        while *running_clone.lock().unwrap() {
-            callback();
-            thread::sleep(interval);
-        }
-    })
+#[wasm_bindgen]
+extern "C" {
+    fn setInterval(closure: &Closure<dyn FnMut()>, time: u32) -> i32;
+    fn clearInterval(id: i32);
 }
 
-pub fn clear_interval(handle: thread::JoinHandle<()>, running: &Arc<Mutex<bool>>) {
-    *running.lock().unwrap() = false;
-    handle.join().unwrap();
+pub fn set_interval<T>(timer: Rc<RefCell<T>>, mills: u32) -> i32
+where
+    T: 'static + TimerEvent,
+{
+    let closure = Closure::new(move || {
+        if timer.borrow().is_continue() {
+            timer.borrow_mut().routine();
+        }
+    });
+    let interval_id = setInterval(&closure, mills);
+    closure.forget();
+    interval_id
+}
+
+pub fn clear_interval(id: i32) {
+    clearInterval(id);
 }

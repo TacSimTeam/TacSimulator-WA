@@ -1,3 +1,4 @@
+use std::ops::{Index, IndexMut};
 use wasm_bindgen::JsValue;
 use web_sys::CanvasRenderingContext2d;
 
@@ -25,7 +26,43 @@ pub enum SwitchName {
     STEP,
 }
 
-#[derive(Clone)]
+impl Index<SwitchName> for Vec<Switch> {
+    type Output = Switch;
+
+    fn index(&self, index: SwitchName) -> &Self::Output {
+        match index {
+            SwitchName::D0 => &self[0],
+            SwitchName::D1 => &self[1],
+            SwitchName::D2 => &self[2],
+            SwitchName::D3 => &self[3],
+            SwitchName::D4 => &self[4],
+            SwitchName::D5 => &self[5],
+            SwitchName::D6 => &self[6],
+            SwitchName::D7 => &self[7],
+            SwitchName::BREAK => &self[8],
+            SwitchName::STEP => &self[9],
+        }
+    }
+}
+
+impl IndexMut<SwitchName> for Vec<Switch> {
+    fn index_mut(&mut self, index: SwitchName) -> &mut Self::Output {
+        match index {
+            SwitchName::D0 => &mut self[0],
+            SwitchName::D1 => &mut self[1],
+            SwitchName::D2 => &mut self[2],
+            SwitchName::D3 => &mut self[3],
+            SwitchName::D4 => &mut self[4],
+            SwitchName::D5 => &mut self[5],
+            SwitchName::D6 => &mut self[6],
+            SwitchName::D7 => &mut self[7],
+            SwitchName::BREAK => &mut self[8],
+            SwitchName::STEP => &mut self[9],
+        }
+    }
+}
+
+#[derive(Clone, PartialEq)]
 pub struct Switch {
     pos_x: f64,
     pos_y: f64,
@@ -115,5 +152,9 @@ impl Switch {
 
     pub fn toggle_state(&mut self) {
         self.state = !self.state;
+    }
+
+    pub fn get_state(&self) -> bool {
+        self.state
     }
 }

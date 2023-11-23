@@ -8,6 +8,7 @@ pub enum Interrupt {
     FT232RL_SENT,
     TEC_RECEIVED,
     TEC_SENT,
+    MICRO_SD,
     PIO,
     EXCP_TLB_MISS,
     EXCP_MEMORY_ERROR,

@@ -63,4 +63,9 @@ impl Psw {
             self.flag = self.flag & (!(Flags::PRIV as u8) & 0xff);
         }
     }
+
+    pub fn reset(&mut self) {
+        self.pc = 0xe000;
+        self.flag = Flags::PRIV as u8;
+    }
 }

@@ -1,19 +1,24 @@
 use crate::core::interrupt::interrupt::Interrupt;
 use crate::core::interrupt::intr_controller::IntrController;
 use crate::core::traits::io::device::io_serial::IIOSerial;
+use std::cell::RefCell;
+use std::rc::Rc;
+use std::sync::{Arc, Mutex};
 use web_sys::HtmlTextAreaElement;
+use yew::NodeRef;
 
+#[derive(PartialEq, Clone)]
 pub struct TerminalIO {
     sendable_intr_flag: bool,
     recivable_intr_flag: bool,
     empty_flag: bool,
     buf: u8,
-    terminal: HtmlTextAreaElement,
-    intr_sig: IntrController,
+    terminal: NodeRef,
+    intr_sig: Rc<RefCell<IntrController>>,
 }
 
 impl TerminalIO {
-    pub fn new(terminal: HtmlTextAreaElement, intr_sig: IntrController) -> Self {
+    pub fn new(terminal: NodeRef, intr_sig: Rc<RefCell<IntrController>>) -> Self {
         Self {
             sendable_intr_flag: false,
             recivable_intr_flag: false,
@@ -32,37 +37,43 @@ impl IIOSerial for TerminalIO {
     }
 
     fn send(&mut self, val: u8) {
+        let terminal = self.terminal.cast::<HtmlTextAreaElement>().unwrap();
         if val == 0x08 {
             // バックスペース
-            self.terminal
-                .set_inner_text(&(&self.terminal.value()[..self.terminal.value().len() - 1]));
+            terminal.set_inner_text(&(&terminal.value()[..terminal.value().len() - 1]));
         } else {
             let ch = std::char::from_u32(val as u32)
                 .unwrap()
                 .to_string()
                 .replace("/\r/", "");
-            self.terminal.set_inner_text(&(self.terminal.value() + &ch));
+            terminal.set_inner_text(&(terminal.value() + &ch));
             if ch.eq("/\n/") {
-                self.terminal.set_scroll_top(self.terminal.scroll_height());
+                terminal.set_scroll_top(terminal.scroll_height());
             }
         }
 
         if self.sendable_intr_flag {
-            self.intr_sig.interrupt(Interrupt::FT232RL_SENT);
+            self.intr_sig
+                .borrow_mut()
+                .interrupt(Interrupt::FT232RL_SENT);
         }
     }
 
     fn set_receivable_intr_flag(&mut self, flag: bool) {
         self.recivable_intr_flag = flag;
         if self.recivable_intr_flag && !self.empty_flag {
-            self.intr_sig.interrupt(Interrupt::FT232RL_RECEIVED);
+            self.intr_sig
+                .borrow_mut()
+                .interrupt(Interrupt::FT232RL_RECEIVED);
         }
     }
 
     fn set_sendable_intr_flag(&mut self, flag: bool) {
         self.sendable_intr_flag = flag;
         if self.sendable_intr_flag && self.empty_flag {
-            self.intr_sig.interrupt(Interrupt::FT232RL_SENT)
+            self.intr_sig
+                .borrow_mut()
+                .interrupt(Interrupt::FT232RL_SENT)
         }
     }
     fn is_readable(&self) -> bool {
@@ -79,7 +90,9 @@ impl TerminalIO {
         self.buf = self.key_to_ascii(e.key());
         self.empty_flag = false;
         if self.recivable_intr_flag {
-            self.intr_sig.interrupt(Interrupt::FT232RL_RECEIVED);
+            self.intr_sig
+                .borrow_mut()
+                .interrupt(Interrupt::FT232RL_RECEIVED);
         }
     }
 
@@ -101,7 +114,7 @@ impl TerminalIO {
         }
     }
 
-    fn reset(&mut self) {
+    pub fn reset(&mut self) {
         self.sendable_intr_flag = false;
         self.recivable_intr_flag = false;
         self.empty_flag = false;

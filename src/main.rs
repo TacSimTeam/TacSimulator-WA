@@ -1,26 +1,38 @@
-#![feature(unboxed_closures)]
-
-use crate::core::console::console::{Console, Props};
-use crate::core::cpu::psw::Psw;
-use crate::core::cpu::register::Register;
-use crate::core::memory::memory::Memory;
+use crate::core::tac_wrap::TacWrap as Tac;
+use gloo_net::http::Request;
 use std::cell::RefCell;
 use std::rc::Rc;
-use yew::{function_component, html, Html};
+use yew::{function_component, html, use_effect_with, use_state, Html};
 
 mod core;
-mod ui;
 mod util;
 
-type ConsoleProps = Props;
+async fn fetch_dmg() -> Vec<u8> {
+    // let res: Vec<u8> = Request::get("http://localhost:3000/assets/Test-8queen-8m.dmg")
+    let res: Vec<u8> = Request::get("http://localhost:3000/assets/TacOS-vm-8m.dmg")
+        .send()
+        .await
+        .unwrap()
+        .binary()
+        .await
+        .unwrap();
+    return res;
+}
 #[function_component]
 fn App() -> Html {
-    // TODO 最終的にはTaCコンポーネントのの中でこれ作って配置してあげる
-    let memory = Rc::new(RefCell::new(Memory::new()));
-    let psw = Rc::new(RefCell::new(Psw::new()));
-    let register = Rc::new(RefCell::new(Register::new(Rc::clone(&psw))));
+    let dmg = use_state(|| vec![]);
+    {
+        let dmg = dmg.clone();
+        use_effect_with((), move |_| {
+            let dmg = dmg.clone();
+            wasm_bindgen_futures::spawn_local(async move {
+                dmg.set(fetch_dmg().await);
+            });
+            || ()
+        });
+    }
     return html! {
-        <Console memory={memory} psw={psw} register={register} />
+        <Tac dmg={Rc::new(RefCell::new((*dmg).clone()))}/>
     };
 }
 

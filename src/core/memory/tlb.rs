@@ -16,6 +16,7 @@ impl TlbEntry {
         (self.value & 0x0000ffff) as u16
     }
 
+    // TODO それぞれ8ビットと16ビットを受け取るように変更
     pub fn set_high_8(&mut self, value: u32) {
         self.value = ((value & 0xffff) << 16) | (self.value & 0xffff);
     }

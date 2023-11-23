@@ -15,12 +15,12 @@ pub async fn load_image(source: &str) -> Result<HtmlImageElement> {
     let error_tx = Rc::clone(&success_tx);
     let success_callback = closure_once(move || {
         if let Some(success_tx) = success_tx.lock().ok().and_then(|mut opt| opt.take()) {
-            success_tx.send(Ok(()));
+            let _ = success_tx.send(Ok(()));
         }
     });
     let error_callback: Closure<dyn FnMut(JsValue)> = closure_once(move |err| {
         if let Some(error_tx) = error_tx.lock().ok().and_then(|mut opt| opt.take()) {
-            error_tx.send(Err(anyhow!("Error loading image: {:#?}", err)));
+            let _ = error_tx.send(Err(anyhow!("Error loading image: {:#?}", err)));
         }
     });
     image.set_onload(Some(success_callback.as_ref().unchecked_ref()));

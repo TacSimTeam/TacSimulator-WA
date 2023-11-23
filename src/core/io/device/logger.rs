@@ -2,17 +2,22 @@ use crate::core::interrupt::interrupt::Interrupt;
 use crate::core::interrupt::intr_controller::IntrController;
 use crate::core::traits::io::device::io_serial::IIOSerial;
 use gloo::console;
-use web_sys::{Document, HtmlInputElement};
+use std::cell::RefCell;
+use std::rc::Rc;
+use std::sync::{Arc, Mutex};
+use web_sys::HtmlInputElement;
+use yew::NodeRef;
 
+#[derive(PartialEq, Clone)]
 pub struct Logger {
     sendable_intr_flag: bool,
     buf: String,
-    intr_sig: IntrController,
-    logger_switch: HtmlInputElement,
+    intr_sig: Rc<RefCell<IntrController>>,
+    logger_switch: NodeRef,
 }
 
 impl Logger {
-    pub fn new(intr_sig: IntrController, logger_switch: HtmlInputElement) -> Self {
+    pub fn new(intr_sig: Rc<RefCell<IntrController>>, logger_switch: NodeRef) -> Self {
         Self {
             sendable_intr_flag: false,
             buf: String::new(),
@@ -20,15 +25,21 @@ impl Logger {
             logger_switch,
         }
     }
+
+    pub fn reset(&mut self) {
+        self.sendable_intr_flag = false;
+        self.buf = String::new();
+    }
 }
 
 impl IIOSerial for Logger {
-    fn receive(&mut self, _val: u8) -> u8 {
+    fn receive(&mut self) -> u8 {
         0u8
     }
 
     fn send(&mut self, val: u8) {
-        if self.logger_switch.checked() {
+        let logger_switch = self.logger_switch.cast::<HtmlInputElement>().unwrap();
+        if logger_switch.checked() {
             self.buf = String::new();
         } else if val == 0x08 {
             self.buf = self.buf[..self.buf.len() - 1].to_string();
@@ -45,7 +56,7 @@ impl IIOSerial for Logger {
         }
 
         if self.sendable_intr_flag {
-            self.intr_sig.interrupt(Interrupt::RN4020_SENT);
+            self.intr_sig.borrow_mut().interrupt(Interrupt::RN4020_SENT);
         }
     }
 
@@ -54,7 +65,7 @@ impl IIOSerial for Logger {
     fn set_sendable_intr_flag(&mut self, flag: bool) {
         self.sendable_intr_flag = flag;
         if self.sendable_intr_flag {
-            self.intr_sig.interrupt(Interrupt::RN4020_SENT)
+            self.intr_sig.borrow_mut().interrupt(Interrupt::RN4020_SENT)
         }
     }
 
