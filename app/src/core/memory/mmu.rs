@@ -41,59 +41,81 @@ impl Mmu {
         }
     }
 
-    pub fn read8(&mut self, addr: u16) -> u8 {
+    pub fn read8(&mut self, addr: u16) -> Result<u8, TlbError> {
+        let mut addr= addr;
         if self.mmu_mode && !self.priv_sig.borrow().get_priv_flag() {
-            // TODO 適切なエラー処理を実装
-            let mut entry = self.v_addr_to_entry(addr).unwrap();
+            let mut entry = match self.v_addr_to_entry(addr) {
+                Ok(entry) => {
+                    entry
+                }
+                Err(e) => {
+                    return Err(e);
+                }
+            };
             if !entry.is_readable() {
                 self.report_mem_vio_error(addr);
-                return 0u8;
+                return Ok(0u8);
             }
             entry.set_reference_flag();
-            let addr = ((entry.get_frame() as u16) << 8) | (addr & 0x00ff);
+            addr = ((entry.get_frame() as u16) << 8) | (addr & 0x00ff);
         }
-        self.memory.borrow().read8(addr)
+        Ok(self.memory.borrow().read8(addr))
     }
 
     pub fn write8(&mut self, addr: u16, val: u8) -> Result<(), TlbError> {
+        let mut addr = addr;
         if self.ipl_mode && addr >= 0xe000 {
             return Err(TlbError::ReadOnly);
         }
         if self.mmu_mode && !self.priv_sig.borrow().get_priv_flag() {
-            // TODO 適切なエラー処理を実装
-            let mut entry = self.v_addr_to_entry(addr).unwrap();
+            let mut entry = match self.v_addr_to_entry(addr){
+                Ok(entry) => {
+                    entry
+                }
+                Err(e) => {
+                    return Err(e);
+                }
+            };
             if !entry.is_readable() {
                 self.report_mem_vio_error(addr);
                 return Ok(());
             }
             entry.set_reference_flag();
             entry.set_dirty_flag();
-            let addr = ((entry.get_frame() as u16) << 8) | (addr & 0x00ff);
+            addr = ((entry.get_frame() as u16) << 8) | (addr & 0x00ff);
         }
         self.memory.borrow_mut().write8(addr, val);
 
         Ok(())
     }
 
-    pub fn read16(&mut self, addr: u16) -> u16 {
+    pub fn read16(&mut self, addr: u16) -> Result<u16, TlbError> {
+        let mut addr = addr;
         if addr % 2 == 1 {
             self.report_bad_addr_error(addr);
-            return 0;
+            return Ok(0);
         }
         if self.mmu_mode && !self.priv_sig.borrow_mut().get_priv_flag() {
-            // TODO 適切なエラー処理を実装
-            let mut entry = self.v_addr_to_entry(addr).unwrap();
+            let mut entry = match self.v_addr_to_entry(addr) {
+                Ok(entry) => {
+                    entry
+                }
+                Err(e) => {
+                    return Err(e);
+                }
+            };
             if !entry.is_readable() {
                 self.report_mem_vio_error(addr);
-                return 0;
+                return Ok(0);
             }
             entry.set_reference_flag();
-            let addr = (entry.get_frame() as u16) << 8 | (addr & 0x00ff);
+            addr = (entry.get_frame() as u16) << 8 | (addr & 0x00ff);
         }
-        return self.memory.borrow().read16(addr);
+        Ok(self.memory.borrow().read16(addr))
     }
 
     pub fn write16(&mut self, addr: u16, val: u16) -> Result<(), TlbError> {
+        let mut addr= addr;
         if addr % 2 == 1 {
             self.report_bad_addr_error(addr);
             return Ok(());
@@ -104,8 +126,14 @@ impl Mmu {
         }
 
         if self.mmu_mode & !self.priv_sig.borrow().get_priv_flag() {
-            // TODO 適切なエラー処理を実装
-            let mut entry = self.v_addr_to_entry(addr).unwrap();
+            let mut entry = match self.v_addr_to_entry(addr) {
+                Ok(entry) => {
+                    entry
+                }
+                Err(e) => {
+                    return Err(e);
+                }
+            };
 
             if !entry.is_writable() {
                 self.report_mem_vio_error(addr);
@@ -114,29 +142,36 @@ impl Mmu {
 
             entry.set_reference_flag();
             entry.set_dirty_flag();
-            let addr = (entry.get_frame() as u16) << 8 | (addr & 0x00ff);
+            addr = (entry.get_frame() as u16) << 8 | (addr & 0x00ff);
         }
         self.memory.borrow_mut().write16(addr, val);
         Ok(())
     }
 
-    pub fn fetch(&mut self, pc: u16) -> u16 {
+    pub fn fetch(&mut self, pc: u16) -> Result<u16, TlbError>{
+        let mut pc = pc;
         if pc % 2 == 1 {
             self.report_bad_addr_error(pc);
-            return 0;
+            return Ok(0);
         }
         if self.mmu_mode && !self.priv_sig.borrow().get_priv_flag() {
-            // TODO 適切なエラー処理を実装
-            let mut entry = self.v_addr_to_entry(pc).unwrap();
+            let mut entry = match self.v_addr_to_entry(pc){
+                Ok(entry) => {
+                    entry
+                }
+                Err(e) => {
+                    return Err(e);
+                }
+            };
             if !entry.is_executable() {
                 self.report_mem_vio_error(pc);
-                return 0;
+                return Ok(0);
             }
 
             entry.set_reference_flag();
-            let pc = (entry.get_frame() as u16) << 8 | (pc & 0x00ff);
+            pc = (entry.get_frame() as u16) << 8 | (pc & 0x00ff);
         }
-        return self.memory.borrow().fetch(pc);
+        return Ok(self.memory.borrow().fetch(pc));
     }
 
     fn v_addr_to_entry(&mut self, v_addr: u16) -> Result<TlbEntry, TlbError> {
@@ -229,7 +264,7 @@ impl Mmu {
         for (i, v) in IPL.iter().enumerate() {
             self.memory
                 .borrow_mut()
-                .write16(0xe000 + (i * 2) as u16, IPL[i]);
+                .write16(0xe000 + (i * 2) as u16, *v);
         }
         self.ipl_mode = true;
     }
