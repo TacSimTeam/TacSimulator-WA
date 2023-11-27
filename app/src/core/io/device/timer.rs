@@ -2,7 +2,6 @@ use crate::core::interrupt::intr_controller::IntrController;
 use crate::core::io::device::timer_core::{TimerCore, TimerNum};
 use crate::util::interval::{clear_interval, set_interval};
 use std::cell::RefCell;
-use std::ops::{Deref, Index};
 use std::rc::Rc;
 
 #[derive(PartialEq, Clone)]
@@ -92,26 +91,5 @@ impl Timer {
 
     pub fn stop_timer(&mut self, timer_num: TimerNum) {
         self.clear_timer(timer_num);
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::core::interrupt::intr_controller::IntrController;
-    use crate::core::io::device::timer::Timer;
-    use crate::core::io::device::timer_core::TimerNum;
-    use std::sync::{Arc, Mutex};
-    use std::thread;
-    use std::time::Duration;
-
-    #[test]
-    fn timer_test() {
-        let intr_controller = IntrController::new();
-        // let mut timer = Timer::new(Arc::new(Mutex::new(intr_controller)));
-        // timer.timer0.lock().unwrap().set_cycle(100);
-        // timer.start_timer(TimerNum::TIMER0);
-        // thread::sleep(Duration::from_secs(2));
-        // timer.clear_timer(TimerNum::TIMER0);
-        // println!("count: {}", timer.timer0.lock().unwrap().get_count());
     }
 }
