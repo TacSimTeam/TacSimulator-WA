@@ -3,7 +3,6 @@ use crate::core::interrupt::intr_controller::IntrController;
 use crate::core::traits::io::device::io_serial::IIOSerial;
 use std::cell::RefCell;
 use std::rc::Rc;
-use std::sync::{Arc, Mutex};
 use web_sys::HtmlTextAreaElement;
 use yew::NodeRef;
 
