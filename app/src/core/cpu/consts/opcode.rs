@@ -1,4 +1,4 @@
-#[allow(dead_code)]
+#[allow(non_camel_case_types)]
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub enum OPCode {
     NOP = 0x00,
@@ -66,7 +66,7 @@ impl OPCode {
 }
 
 #[allow(dead_code)]
-#[derive(PartialEq, PartialOrd)]
+#[derive(PartialEq, PartialOrd, Debug)]
 pub enum JMP {
     JZ,
     JC,
@@ -88,21 +88,21 @@ pub enum JMP {
 impl JMP {
     pub fn from_index(index: u8) -> Option<Self> {
         match index {
-            0x01 => Some(Self::JZ),
-            0x02 => Some(Self::JC),
-            0x03 => Some(Self::JM),
-            0x04 => Some(Self::JO),
-            0x05 => Some(Self::JGT),
-            0x06 => Some(Self::JGE),
-            0x07 => Some(Self::JLE),
-            0x08 => Some(Self::JLT),
-            0x09 => Some(Self::JNZ),
-            0x0a => Some(Self::JNC),
-            0x0b => Some(Self::JNM),
-            0x0c => Some(Self::JNO),
-            0x0d => Some(Self::JHI),
-            0x0e => Some(Self::JLS),
-            0x0f => Some(Self::JMP),
+            0 => Some(Self::JZ),
+            1 => Some(Self::JC),
+            2 => Some(Self::JM),
+            3 => Some(Self::JO),
+            4 => Some(Self::JGT),
+            5 => Some(Self::JGE),
+            6 => Some(Self::JLE),
+            7 => Some(Self::JLT),
+            8 => Some(Self::JNZ),
+            9 => Some(Self::JNC),
+            10 => Some(Self::JNM),
+            11 => Some(Self::JNO),
+            12 => Some(Self::JHI),
+            14 => Some(Self::JLS),
+            15 => Some(Self::JMP),
             _ => None,
         }
     }

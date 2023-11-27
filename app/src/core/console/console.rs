@@ -4,15 +4,11 @@ use crate::core::console::console_state::ConsoleState;
 use crate::core::tac::Tac;
 use crate::util::image::load_image;
 use std::cell::RefCell;
-use std::ops::Deref;
 use std::rc::Rc;
 use wasm_bindgen::JsCast;
 use web_sys::{CanvasRenderingContext2d, HtmlCanvasElement, HtmlImageElement};
 use yew::functional::use_context;
-use yew::{
-    function_component, html, Component, Context, ContextHandle, Html, MouseEvent, NodeRef,
-    Properties,
-};
+use yew::{function_component, html, Component, Context, Html, MouseEvent, NodeRef, Properties};
 
 #[function_component(ConsoleWrap)]
 pub fn console_wrap(props: &Props) -> Html {
@@ -52,25 +48,25 @@ pub struct ConsoleProps {
 impl Console {
     pub fn on_click(&mut self, x: i32, y: i32) -> bool {
         let val = self.components.borrow().switch_state();
+        let mut is_click = false;
         for (index, b) in self.components.borrow().buttons.iter().enumerate() {
             if b.is_btn_clicked(x as f64, y as f64) {
                 if index == 2 || index == 3 || index == 4 {
-                    gloo::console::log!("btn clicked");
-                    gloo::console::log!(&format!("{:?}", b.event));
                     b.on_click(ButtonArg::Tac(&mut self.tac_ref.borrow_mut()), 0);
                 } else {
                     b.on_click(ButtonArg::Console(&mut self.state.borrow_mut()), val);
                 }
-                return true;
+                is_click = true;
             }
         }
         for s in self.components.borrow_mut().switches.iter_mut() {
             if s.is_switch_clicked(x as f64, y as f64) {
                 s.toggle_state();
-                return true;
+                is_click = true;
             }
         }
-        false
+        self.update();
+        return is_click;
     }
 
     fn update(&mut self) {
@@ -179,7 +175,7 @@ impl Component for Console {
         }
     }
 
-    fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
+    fn update(&mut self, _ctx: &Context<Self>, msg: Self::Message) -> bool {
         match msg {
             Msg::FetchOk(image) => {
                 self.image = Some(image.clone());
@@ -200,7 +196,6 @@ impl Component for Console {
                 true
             }
             Msg::Clicked((x, y)) => {
-                // gloo::console::log!(format!("clicked {} {}", x, y));
                 if self.on_click(x, y) {
                     self.update();
                     return true;

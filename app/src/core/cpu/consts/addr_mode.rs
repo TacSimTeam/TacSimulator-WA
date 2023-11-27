@@ -1,4 +1,4 @@
-#[allow(dead_code)]
+#[allow(non_camel_case_types)]
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub enum AddrMode {
     DIRECT,
@@ -6,7 +6,7 @@ pub enum AddrMode {
     IMMEDIATE,
     FP_RELATIVE,
     REG_TO_REG,
-    SHORT_IMMDIATE,
+    SHORT_IMMEDIATE,
     REG_INDIRECT,
     BYTE_REG_INDIRECT,
 }
@@ -19,7 +19,7 @@ impl AddrMode {
             2 => Some(AddrMode::IMMEDIATE),
             3 => Some(AddrMode::FP_RELATIVE),
             4 => Some(AddrMode::REG_TO_REG),
-            5 => Some(AddrMode::SHORT_IMMDIATE),
+            5 => Some(AddrMode::SHORT_IMMEDIATE),
             6 => Some(AddrMode::REG_INDIRECT),
             7 => Some(AddrMode::BYTE_REG_INDIRECT),
             _ => None,

@@ -1,3 +1,4 @@
+#[allow(non_camel_case_types)]
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum Flags {
     ENABLE_INTR = 0x80,

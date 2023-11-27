@@ -1,4 +1,5 @@
-#[derive(PartialEq, PartialOrd)]
+#[allow(non_camel_case_types)]
+#[derive(PartialEq, PartialOrd, Clone, Copy, Debug)]
 pub enum IOMapAddr {
     TIMER0_COUNTER_CYCLE = 0x00,
     TIMER0_FLAG_CTRL = 0x02,
