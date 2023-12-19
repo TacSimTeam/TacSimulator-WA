@@ -4,11 +4,10 @@ use crate::core::traits::io::device::io_serial::IIOSerial;
 use gloo::console;
 use std::cell::RefCell;
 use std::rc::Rc;
-use std::sync::{Arc, Mutex};
 use web_sys::HtmlInputElement;
 use yew::NodeRef;
 
-#[derive(PartialEq, Clone)]
+#[derive(PartialEq, Clone, Debug)]
 pub struct Logger {
     sendable_intr_flag: bool,
     buf: String,
@@ -39,7 +38,7 @@ impl IIOSerial for Logger {
 
     fn send(&mut self, val: u8) {
         let logger_switch = self.logger_switch.cast::<HtmlInputElement>().unwrap();
-        if logger_switch.checked() {
+        if !logger_switch.checked() {
             self.buf = String::new();
         } else if val == 0x08 {
             self.buf = self.buf[..self.buf.len() - 1].to_string();
@@ -50,7 +49,7 @@ impl IIOSerial for Logger {
                 .replace("/\r/", "");
             self.buf = self.buf.clone() + &ch;
             if ch.eq("/\n/") {
-                console::info!(self.buf.clone());
+                console::log!(self.buf.as_str());
                 self.buf = String::new();
             }
         }

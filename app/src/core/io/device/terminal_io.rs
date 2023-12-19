@@ -6,7 +6,7 @@ use std::rc::Rc;
 use web_sys::HtmlTextAreaElement;
 use yew::NodeRef;
 
-#[derive(PartialEq, Clone)]
+#[derive(PartialEq, Clone, Debug)]
 pub struct TerminalIO {
     sendable_intr_flag: bool,
     recivable_intr_flag: bool,
@@ -21,7 +21,7 @@ impl TerminalIO {
         Self {
             sendable_intr_flag: false,
             recivable_intr_flag: false,
-            empty_flag: false,
+            empty_flag: true,
             buf: 0u8,
             terminal,
             intr_sig,
@@ -38,15 +38,14 @@ impl IIOSerial for TerminalIO {
     fn send(&mut self, val: u8) {
         let terminal = self.terminal.cast::<HtmlTextAreaElement>().unwrap();
         if val == 0x08 {
-            // バックスペース
             terminal.set_inner_text(&(&terminal.value()[..terminal.value().len() - 1]));
         } else {
             let ch = std::char::from_u32(val as u32)
                 .unwrap()
                 .to_string()
-                .replace("/\r/", "");
-            terminal.set_inner_text(&(terminal.value() + &ch));
-            if ch.eq("/\n/") {
+                .replace("\r", "");
+            terminal.set_value(&(terminal.value() + &ch));
+            if ch.eq("\n") {
                 terminal.set_scroll_top(terminal.scroll_height());
             }
         }
@@ -116,7 +115,7 @@ impl TerminalIO {
     pub fn reset(&mut self) {
         self.sendable_intr_flag = false;
         self.recivable_intr_flag = false;
-        self.empty_flag = false;
+        self.empty_flag = true;
         self.buf = 0;
     }
 }

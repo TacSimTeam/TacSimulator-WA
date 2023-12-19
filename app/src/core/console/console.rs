@@ -170,7 +170,6 @@ impl Component for Console {
             state: Rc::clone(state),
             components: Rc::clone(component),
             image: None,
-            // TODO 後でtacの構造体をもらう
             tac_ref: Rc::clone(tac),
         }
     }
@@ -193,6 +192,7 @@ impl Component for Console {
                 self.components.borrow_mut().init(canvas_ctx);
                 self.components.borrow().draw();
                 self.update();
+                self.tac_ref.borrow_mut().init();
                 true
             }
             Msg::Clicked((x, y)) => {

@@ -70,7 +70,7 @@ pub enum ButtonArg<'a> {
     Tac(&'a mut Tac),
 }
 
-#[derive(PartialEq, Clone)]
+#[derive(PartialEq, Clone, Debug)]
 pub struct Button {
     pos_x: f64,
     pos_y: f64,
@@ -131,7 +131,6 @@ impl Button {
 
     pub fn on_click(&self, refer: ButtonArg, val: u8) {
         if self.event.is_some() {
-            gloo::console::log!("btn click in function");
             match self.event.as_ref().unwrap() {
                 ButtonEventType::TacEvent(tac_event) => {
                     if let ButtonArg::Tac(tac) = refer {

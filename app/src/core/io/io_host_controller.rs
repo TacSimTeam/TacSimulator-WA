@@ -12,7 +12,7 @@ use crate::core::traits::io::device::io_serial::IIOSerial;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-#[derive(PartialEq, Clone)]
+#[derive(PartialEq, Clone, Debug)]
 pub struct IOHostController {
     timers: Rc<RefCell<Timer>>,
     terminal: Rc<RefCell<TerminalIO>>,
@@ -21,6 +21,7 @@ pub struct IOHostController {
     sd_host: Rc<RefCell<SdHostController>>,
     console_state: Rc<RefCell<ConsoleState>>,
     console_components: Rc<RefCell<Components>>,
+    pid: u16,
 }
 
 impl IOHostController {
@@ -41,6 +42,7 @@ impl IOHostController {
             sd_host,
             console_state,
             console_components,
+            pid: 0,
         }
     }
 
@@ -112,19 +114,19 @@ impl IOHostController {
     pub fn output(&mut self, addr: IOMapAddr, val: u16) {
         match addr {
             IOMapAddr::TIMER0_COUNTER_CYCLE => {
-                self.timers.borrow().timer0.borrow_mut().set_cycle(val);
+                self.timers.borrow_mut().timer0.borrow_mut().set_cycle(val);
             }
             IOMapAddr::TIMER0_FLAG_CTRL => {
                 self.set_timer_ctrl_flag(TimerNum::TIMER0, val);
             }
             IOMapAddr::TIMER1_COUNTER_CYCLE => {
-                self.timers.borrow().timer1.borrow_mut().set_cycle(val);
+                self.timers.borrow_mut().timer1.borrow_mut().set_cycle(val);
             }
             IOMapAddr::TIMER1_FLAG_CTRL => {
                 self.set_timer_ctrl_flag(TimerNum::TIMER1, val);
             }
             IOMapAddr::FT232RL_RECEIVE_SERVE => {
-                self.terminal.borrow_mut().send(val as u8);
+                self.terminal.borrow_mut().send((val & 0x00ff) as u8);
             }
             IOMapAddr::FT232RL_STAT_CTRL => {
                 self.terminal
@@ -268,6 +270,9 @@ impl IOHostController {
             }
             _ => {}
         }
+        if addr as u16 == 0x38 {
+            self.pid = addr as u16
+        }
     }
 
     fn get_timer_flag(&self, timer_num: TimerNum) -> u16 {
@@ -302,6 +307,9 @@ impl IOHostController {
         }
         if self.log.borrow().is_readable() {
             val |= 0x0040;
+        }
+        if !self.sd_host.borrow().is_sd_loaded() {
+            val |= 0x0001;
         }
         val
     }
@@ -355,5 +363,9 @@ impl IOHostController {
         if (val & 0x0001) != 0 {
             self.sd_host.borrow_mut().start_writing();
         }
+    }
+
+    pub fn get_pid(&self) -> u16 {
+        self.pid
     }
 }

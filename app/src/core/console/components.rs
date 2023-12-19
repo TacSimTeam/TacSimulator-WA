@@ -5,7 +5,7 @@ use crate::core::console::switch::{Switch, SwitchName};
 use crate::core::traits::console::console::IConsoleStateAction;
 use web_sys::CanvasRenderingContext2d;
 
-#[derive(PartialEq, Clone)]
+#[derive(PartialEq, Clone, Debug)]
 pub struct Components {
     pub addr_led: Vec<Led>,
     pub buttons: Vec<Button>,
@@ -170,7 +170,7 @@ impl Components {
     pub fn switch_state(&self) -> u8 {
         let mut state = 0;
         for (i, s) in self.switches.iter().enumerate() {
-            if s.get_state() {
+            if s.get_state() && i < 8 {
                 state = state | (1 << i);
             }
         }

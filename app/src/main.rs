@@ -1,38 +1,65 @@
 use crate::core::tac_wrap::TacWrap as Tac;
-use gloo_net::http::Request;
+use crate::util::fetch::fetch_and_convert_into_vector;
 use std::cell::RefCell;
+use std::io::Read;
 use std::rc::Rc;
-use yew::{function_component, html, use_effect_with, use_state, Html};
+use yew::{function_component, html, Callback, Html};
+use yew_hooks::use_async;
 
 mod core;
 mod util;
 
-async fn fetch_dmg() -> Vec<u8> {
-    // let res: Vec<u8> = Request::get("http://localhost:3000/assets/Test-8queen-8m.dmg")
-    let res: Vec<u8> = Request::get("http://localhost:3000/assets/TacOS-vm-8m.dmg")
-        .send()
-        .await
-        .unwrap()
-        .binary()
-        .await
-        .unwrap();
-    return res;
-}
 #[function_component]
 fn App() -> Html {
-    let dmg = use_state(|| vec![]);
-    {
+    let dmg = use_async(async move {
+        fetch_and_convert_into_vector(String::from("http://localhost:3000/TacOS-vm-8m-debug.dmg"))
+            .await
+    });
+    let onclick = {
         let dmg = dmg.clone();
-        use_effect_with((), move |_| {
-            let dmg = dmg.clone();
-            wasm_bindgen_futures::spawn_local(async move {
-                dmg.set(fetch_dmg().await);
-            });
-            || ()
-        });
-    }
+        Callback::from(move |_| {
+            dmg.run();
+        })
+    };
     return html! {
-        <Tac dmg={Rc::new(RefCell::new((*dmg).clone()))}/>
+        <>
+            {
+                if dmg.loading {
+                    html! {
+                        <></>
+                    }
+                } else {
+                    html! {
+                        <></>
+                    }
+                }
+            }
+            {
+                if let Some(data) = &dmg.data {
+                    html! {
+                        <>
+                            <Tac dmg={Rc::new(RefCell::new(data.get_data()))}/>
+                        </>
+                    }
+                } else {
+                    html! {
+                        <p>{"Loading ..."}</p>
+                    }
+                }
+            }
+            {
+                if let Some(error) = &dmg.error {
+                    html! {
+                        <p>{format!("{:?}", error)}</p>
+                    }
+                } else {
+                    html! {
+                        <></>
+                    }
+                }
+            }
+            <button {onclick} disabled={dmg.loading}>{"ログイン"}</button>
+        </>
     };
 }
 

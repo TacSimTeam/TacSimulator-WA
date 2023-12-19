@@ -62,7 +62,7 @@ impl IndexMut<SwitchName> for Vec<Switch> {
     }
 }
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Debug)]
 pub struct Switch {
     pos_x: f64,
     pos_y: f64,

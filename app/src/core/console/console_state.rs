@@ -5,7 +5,7 @@ use crate::core::traits::console::console::{IConsoleState, IConsoleStateAction};
 use std::cell::RefCell;
 use std::rc::Rc;
 
-#[derive(PartialEq, Clone)]
+#[derive(PartialEq, Clone, Debug)]
 pub struct ConsoleState {
     pub memory: Rc<RefCell<Memory>>,
     pub psw: Rc<RefCell<Psw>>,
@@ -38,28 +38,22 @@ impl ConsoleState {
 
 impl IConsoleStateAction for ConsoleState {
     fn left_allow_btn_event(&mut self, _val: u8) {
-        gloo::console::log!("left allow btn clicked");
         if self.rot_current != 0 {
             self.rot_current -= 1;
-            // gloo::console::log!(format!("current {}", self.rot_current));
         }
     }
 
     fn right_allow_btn_event(&mut self, _val: u8) {
-        gloo::console::log!("right allow btn clicked");
         if self.rot_current != 17 {
             self.rot_current += 1;
-            // gloo::console::log!(format!("current {}", self.rot_current));
         }
     }
 
     fn seta_btn_event(&mut self, val: u8) {
-        gloo::console::log!("seta btn clicked");
         self.mem_addr = (self.mem_addr << 8) | (val & 0xff) as u16;
     }
 
     fn inca_btn_event(&mut self, _val: u8) {
-        gloo::console::log!("inca btn clicked");
         if self.mem_addr == 0xfffe {
             self.mem_addr = 0u16;
         } else {
@@ -68,7 +62,6 @@ impl IConsoleStateAction for ConsoleState {
     }
 
     fn deca_btn_event(&mut self, _val: u8) {
-        gloo::console::log!("deca btn clicked");
         if self.mem_addr == 0 {
             self.mem_addr = 0xfffe;
         } else {
@@ -77,7 +70,6 @@ impl IConsoleStateAction for ConsoleState {
     }
 
     fn write_btn_event(&mut self, val: u8) {
-        gloo::console::log!("write btn clicked");
         self.push_sw_value_to_reg(val);
     }
 }
@@ -88,7 +80,7 @@ impl IConsoleState for ConsoleState {
             14u8 => self
                 .psw
                 .borrow_mut()
-                .jump((((self.psw.borrow().get_pc() & 0x00ff) << 8) | (val & 0x00ff) as u16)),
+                .jump(((self.psw.borrow().get_pc() & 0x00ff) << 8) | (val & 0x00ff) as u16),
             15u8 => self.psw.borrow_mut().set_flag(
                 ((((self.psw.borrow().get_flag() & 0x00ff) as u16) << 8) | ((val & 0x00ff) as u16))
                     as u8,

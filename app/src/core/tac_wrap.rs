@@ -6,12 +6,8 @@ use crate::core::cpu::register::Register;
 use crate::core::memory::memory::Memory;
 use crate::core::tac::{Tac, TacProps};
 use std::cell::RefCell;
-use std::ops::Deref;
 use std::rc::Rc;
-use yew::{
-    function_component, html, use_state, Component, Context, ContextProvider, Html, NodeRef,
-    Reducible,
-};
+use yew::{html, Component, Context, ContextProvider, Html, NodeRef};
 
 pub struct TacWrap {
     memory: Rc<RefCell<Memory>>,
@@ -70,7 +66,7 @@ impl Component for TacWrap {
         TacWrap::new(Rc::clone(dmg))
     }
 
-    fn view(&self, ctx: &Context<Self>) -> Html {
+    fn view(&self, _ctx: &Context<Self>) -> Html {
         let tac = &self.tac;
         return html! {
             <>
@@ -87,13 +83,5 @@ impl Component for TacWrap {
                 </ContextProvider<Rc<RefCell<Tac>>>>
             </>
         };
-    }
-
-    fn rendered(&mut self, _ctx: &Context<Self>, first_render: bool) {
-        if first_render {
-            gloo::console::log!("rendered");
-        } else {
-            self.tac.borrow_mut().init();
-        }
     }
 }

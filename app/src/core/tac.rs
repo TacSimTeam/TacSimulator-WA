@@ -1,7 +1,6 @@
 use crate::core::console::button::ButtonEventType::TacEvent;
 use crate::core::console::button::ButtonName;
 use crate::core::console::components::Components;
-use crate::core::console::console::Console;
 use crate::core::console::console_state::ConsoleState;
 use crate::core::cpu::cpu::Cpu;
 use crate::core::cpu::psw::Psw;
@@ -16,11 +15,12 @@ use crate::core::io::io_host_controller::IOHostController;
 use crate::core::memory::memory::Memory;
 use crate::core::memory::mmu::Mmu;
 use crate::core::traits::console::console::ITacEvent;
+use crate::util::timeout::{clear_timeout, Timeout};
 use std::cell::RefCell;
-use std::ops::Deref;
 use std::rc::Rc;
-use std::sync::{Arc, Mutex};
-use yew::{html, Component, Context, Html, NodeRef, Properties};
+use wasm_bindgen::closure::Closure;
+use web_sys::js_sys::Date;
+use yew::{NodeRef, Properties};
 
 #[derive(PartialEq, Clone)]
 pub struct Tac {
@@ -39,7 +39,7 @@ pub struct Tac {
     components: Rc<RefCell<Components>>,
     terminal: NodeRef,
     input: NodeRef,
-    // break_addr: u16,
+    cpu_event: Option<i32>,
 }
 
 #[derive(Properties, PartialEq)]
@@ -89,7 +89,7 @@ impl Tac {
             Rc::clone(&components),
         )));
         let cpu = Cpu::new(
-            Rc::clone(&memory),
+            Rc::clone(&mmu),
             Rc::clone(&register),
             Rc::clone(&psw),
             Rc::clone(&intr_host_clone),
@@ -111,7 +111,7 @@ impl Tac {
             components,
             terminal,
             input,
-            // break_addr: 0,
+            cpu_event: None,
         }
     }
 
@@ -119,19 +119,15 @@ impl Tac {
         self.mmu.borrow_mut().load_ipl();
         self.init_btn_action();
         self.reset();
-        gloo::console::log!("src/core/tac init");
     }
 
     pub fn run(&mut self) {
-        gloo::console::log!("src/core/tac run");
         self.timers.borrow_mut().restart_timer(TimerNum::TIMER0);
         self.timers.borrow_mut().restart_timer(TimerNum::TIMER1);
 
+        let start_time = Date::now();
         loop {
-            gloo::console::log!("src/core/tac run in loop");
-            let inst = self.cpu.run();
-            gloo::console::log!(&format!("running instruction: {:?}", inst));
-
+            let _inst = self.cpu.run();
             if self.components.borrow().get_break_switch()
             // && self.psw.borrow().get_pc() == self.break_addr
             {
@@ -145,12 +141,28 @@ impl Tac {
                 self.stop();
                 return;
             }
+            let end_time = Date::now();
+            if end_time - start_time > 15.0 {
+                self.stop();
+                let mut clone = self.clone();
+                let timeout = Timeout::new(
+                    Closure::new(move || {
+                        clone.run();
+                    }),
+                    0,
+                );
+                self.cpu_event = Some(timeout.id);
+                return;
+            }
         }
     }
 
     fn stop(&mut self) {
         self.timers.borrow_mut().stop_timer(TimerNum::TIMER0);
         self.timers.borrow_mut().stop_timer(TimerNum::TIMER1);
+        if let Some(id) = self.cpu_event.take() {
+            clear_timeout(id);
+        }
     }
 
     fn reset(&mut self) {
@@ -171,31 +183,32 @@ impl Tac {
     }
 
     fn init_btn_action(&mut self) {
-        self.components.borrow_mut().buttons[3]
+        self.components.borrow_mut().buttons[ButtonName::RunBtn]
             .set_event(TacEvent(ITacEvent::run_btn_event));
-        self.components.borrow_mut().buttons[2]
+        self.components.borrow_mut().buttons[ButtonName::ResetBtn]
             .set_event(TacEvent(ITacEvent::reset_btn_event));
-        self.components.borrow_mut().buttons[4]
+        self.components.borrow_mut().buttons[ButtonName::StopBtn]
             .set_event(TacEvent(ITacEvent::stop_btn_event));
+    }
+
+    pub fn is_halt(&self) -> bool {
+        self.cpu.is_halt()
     }
 }
 
 impl ITacEvent for Tac {
     fn run_btn_event(&mut self) {
         self.console_state.borrow_mut().set_run_flag(true);
-        gloo::console::log!("run btn pushed");
         self.run();
     }
 
     fn reset_btn_event(&mut self) {
         self.console_state.borrow_mut().set_run_flag(false);
-        gloo::console::log!("reset btn pushed");
         self.reset();
     }
 
     fn stop_btn_event(&mut self) {
         self.console_state.borrow_mut().set_run_flag(false);
-        gloo::console::log!("stop btn pushed");
         self.stop();
     }
 }

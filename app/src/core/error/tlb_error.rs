@@ -1,7 +1,7 @@
 use std::error::Error;
 use std::fmt::{Debug, Display, Formatter};
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum TlbError {
     ReadOnly,
     TlbMiss,
