@@ -15,22 +15,24 @@ impl SDImgIo {
     }
 
     pub fn read_sect(&self, sect_addr: u32) -> Result<Vec<u8>, SdIoError> {
+        let sect_addr = sect_addr as usize;
         return if self.buf.is_none() {
             Err(SdIoError::SdIsNotOpen)
         } else {
-            Ok(self.buf.as_ref().unwrap()
-                [(SECTOR_SIZE * sect_addr) as usize..(SECTOR_SIZE * (sect_addr + 1)) as usize]
-                .to_vec())
+            Ok(
+                self.buf.as_ref().unwrap()[SECTOR_SIZE * sect_addr..SECTOR_SIZE * (sect_addr + 1)]
+                    .to_vec(),
+            )
         };
     }
 
     pub fn write_sect(&mut self, sect_addr: u32, data: Vec<u8>) -> Result<(), SdIoError> {
+        let sect_addr = sect_addr as usize;
         if self.buf.is_none() {
             return Err(SdIoError::SdIsNotOpen);
         } else {
             for i in 0..SECTOR_SIZE {
-                self.buf.as_mut().unwrap()[(sect_addr * SECTOR_SIZE + i) as usize] =
-                    data[i as usize];
+                self.buf.as_mut().unwrap()[sect_addr * SECTOR_SIZE + i] = data[i];
             }
         }
         return Ok(());
@@ -42,10 +44,6 @@ impl SDImgIo {
             return Err(SdIoError::FileIsNotDMG);
         }
 
-        // TODO glooのFileに応じて適切に実装し直しが必要. ファイル入力時点で読まれてるからOk(())返すだけでいいかも
-        // let mut buf: Vec<u8> = Vec::new();
-        // self.file.read_to_end(&mut buf).unwrap();
-        // self.buf = Some(buf);
         Ok(())
     }
 

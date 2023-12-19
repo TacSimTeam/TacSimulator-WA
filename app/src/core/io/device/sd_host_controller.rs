@@ -3,12 +3,10 @@ use crate::core::error::sd_io_error::SdIoError;
 use crate::core::interrupt::interrupt::Interrupt;
 use crate::core::interrupt::intr_controller::IntrController;
 use crate::core::memory::memory::Memory;
-use reqwest::Response;
 use std::cell::RefCell;
 use std::rc::Rc;
-use std::sync::{Arc, Mutex};
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Debug)]
 pub struct SdHostController {
     idle_flag: bool,
     error_flag: bool,
@@ -50,7 +48,7 @@ impl SdHostController {
                 for i in 0..SECTOR_SIZE {
                     self.memory
                         .borrow_mut()
-                        .write8(self.mem_addr + 1, data[i as usize]);
+                        .write8(self.mem_addr + i as u16, data[i]);
                 }
                 self.idle_flag = true;
                 if self.intr_flag {
@@ -128,21 +126,24 @@ impl SdHostController {
     }
 
     pub fn read_sect(&self, sect_addr: u32) -> Result<Vec<u8>, SdIoError> {
+        let sect_addr = sect_addr as usize;
         return if self.buf.borrow().is_empty() {
             Err(SdIoError::SdIsNotOpen)
         } else {
-            Ok(self.buf.borrow()
-                [(SECTOR_SIZE * sect_addr) as usize..(SECTOR_SIZE * (sect_addr + 1)) as usize]
-                .to_vec())
+            Ok(
+                self.buf.borrow()[(SECTOR_SIZE * sect_addr)..(SECTOR_SIZE * (sect_addr + 1))]
+                    .to_vec(),
+            )
         };
     }
 
     pub fn write_sect(&mut self, sect_addr: u32, data: Vec<u8>) -> Result<(), SdIoError> {
+        let sect_addr = sect_addr as usize;
         if self.buf.borrow().is_empty() {
             return Err(SdIoError::SdIsNotOpen);
         } else {
             for i in 0..SECTOR_SIZE {
-                self.buf.borrow_mut()[(sect_addr * SECTOR_SIZE + i) as usize] = data[i as usize];
+                self.buf.borrow_mut()[(sect_addr * SECTOR_SIZE + i)] = data[i];
             }
         }
         Ok(())
@@ -159,5 +160,9 @@ impl SdHostController {
         self.mem_addr = 0;
         self.sec_addr_high = 0;
         self.sec_addr_low = 0;
+    }
+
+    pub fn is_sd_loaded(&self) -> bool {
+        !self.buf.borrow().is_empty()
     }
 }

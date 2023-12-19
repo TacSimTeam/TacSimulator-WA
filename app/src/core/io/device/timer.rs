@@ -4,7 +4,7 @@ use crate::util::interval::{clear_interval, set_interval};
 use std::cell::RefCell;
 use std::rc::Rc;
 
-#[derive(PartialEq, Clone)]
+#[derive(PartialEq, Clone, Debug)]
 pub struct Timer {
     interval_id_timer0: Option<i32>,
     interval_id_timer1: Option<i32>,
@@ -45,20 +45,12 @@ impl Timer {
     }
 
     pub fn clear_timer(&mut self, timer_num: TimerNum) {
-        let interval_id = match timer_num {
+        let mut interval_id = match timer_num {
             TimerNum::TIMER0 => self.interval_id_timer0,
             TimerNum::TIMER1 => self.interval_id_timer1,
         };
-        if interval_id.is_some() {
-            clear_interval(interval_id.unwrap());
-        }
-        match timer_num {
-            TimerNum::TIMER0 => {
-                self.interval_id_timer0 = None;
-            }
-            TimerNum::TIMER1 => {
-                self.interval_id_timer1 = None;
-            }
+        if let Some(id) = interval_id.take() {
+            clear_interval(id);
         }
     }
 

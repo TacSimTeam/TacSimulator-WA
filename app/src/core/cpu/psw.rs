@@ -16,9 +16,9 @@ impl Psw {
 
     pub fn next_pc(&mut self) {
         if self.pc >= 0xfffe {
-            log::error!("PCの値が0xffffを超える")
+            gloo::console::log!("PCの値が0xffffを超える")
         }
-        self.pc += 2
+        self.pc += 2;
     }
 
     pub fn get_pc(&self) -> u16 {
@@ -26,11 +26,8 @@ impl Psw {
     }
 
     pub fn jump(&mut self, addr: u16) {
-        // if addr >= 0xffff {
-        //     log::error!("PCの値が0xffffを超える")
-        // } else if addr % 2 == 0 {
-        if addr % 2 == 0 {
-            log::error!("奇数番地にジャンプしようとしている")
+        if addr % 2 != 0 {
+            gloo::console::warn!("奇数番地にジャンプしようとしている")
         }
         self.pc = addr;
     }
@@ -49,7 +46,7 @@ impl Psw {
     }
 
     pub fn check_flag(&self, flag: u8) -> bool {
-        self.flag == flag
+        self.flag & flag != 0
     }
 
     pub fn get_priv_flag(&self) -> bool {

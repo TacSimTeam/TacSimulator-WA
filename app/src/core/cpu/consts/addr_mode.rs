@@ -12,7 +12,7 @@ pub enum AddrMode {
 }
 
 impl AddrMode {
-    pub fn from_index(index: u8) -> Option<AddrMode> {
+    pub fn from_u8(index: u8) -> Option<AddrMode> {
         match index {
             0 => Some(AddrMode::DIRECT),
             1 => Some(AddrMode::INDEXED),

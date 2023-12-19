@@ -3,15 +3,14 @@ use crate::core::interrupt::intr_controller::IntrController;
 use crate::core::traits::io::device::timer::TimerEvent;
 use std::cell::RefCell;
 use std::rc::Rc;
-use std::sync::{Arc, Mutex};
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Debug)]
 pub enum TimerNum {
     TIMER0,
     TIMER1,
 }
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Debug)]
 pub struct TimerCore {
     pub count: u16,
     pub cycle: u16,
