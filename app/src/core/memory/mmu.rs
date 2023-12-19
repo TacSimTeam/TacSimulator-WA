@@ -9,7 +9,7 @@ use crate::core::memory::tlb::TlbEntry;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-#[derive(PartialEq, Clone)]
+#[derive(PartialEq, Clone, Debug)]
 pub struct Mmu {
     memory: Rc<RefCell<Memory>>,
     intr_sig: Rc<RefCell<IntrController>>,
@@ -36,18 +36,16 @@ impl Mmu {
             ipl_mode: false,
             mmu_mode: false,
             err_addr: 0,
-            err_cause: 0u8,
+            err_cause: 0,
             tlb_miss_page: 0,
         }
     }
 
     pub fn read8(&mut self, addr: u16) -> Result<u8, TlbError> {
-        let mut addr= addr;
+        let mut addr = addr;
         if self.mmu_mode && !self.priv_sig.borrow().get_priv_flag() {
             let mut entry = match self.v_addr_to_entry(addr) {
-                Ok(entry) => {
-                    entry
-                }
+                Ok(entry) => entry,
                 Err(e) => {
                     return Err(e);
                 }
@@ -68,10 +66,8 @@ impl Mmu {
             return Err(TlbError::ReadOnly);
         }
         if self.mmu_mode && !self.priv_sig.borrow().get_priv_flag() {
-            let mut entry = match self.v_addr_to_entry(addr){
-                Ok(entry) => {
-                    entry
-                }
+            let mut entry = match self.v_addr_to_entry(addr) {
+                Ok(entry) => entry,
                 Err(e) => {
                     return Err(e);
                 }
@@ -95,11 +91,9 @@ impl Mmu {
             self.report_bad_addr_error(addr);
             return Ok(0);
         }
-        if self.mmu_mode && !self.priv_sig.borrow_mut().get_priv_flag() {
+        if self.mmu_mode && !self.priv_sig.borrow().get_priv_flag() {
             let mut entry = match self.v_addr_to_entry(addr) {
-                Ok(entry) => {
-                    entry
-                }
+                Ok(entry) => entry,
                 Err(e) => {
                     return Err(e);
                 }
@@ -115,7 +109,7 @@ impl Mmu {
     }
 
     pub fn write16(&mut self, addr: u16, val: u16) -> Result<(), TlbError> {
-        let mut addr= addr;
+        let mut addr = addr;
         if addr % 2 == 1 {
             self.report_bad_addr_error(addr);
             return Ok(());
@@ -127,9 +121,7 @@ impl Mmu {
 
         if self.mmu_mode & !self.priv_sig.borrow().get_priv_flag() {
             let mut entry = match self.v_addr_to_entry(addr) {
-                Ok(entry) => {
-                    entry
-                }
+                Ok(entry) => entry,
                 Err(e) => {
                     return Err(e);
                 }
@@ -148,17 +140,15 @@ impl Mmu {
         Ok(())
     }
 
-    pub fn fetch(&mut self, pc: u16) -> Result<u16, TlbError>{
+    pub fn fetch(&mut self, pc: u16) -> Result<u16, TlbError> {
         let mut pc = pc;
         if pc % 2 == 1 {
             self.report_bad_addr_error(pc);
             return Ok(0);
         }
         if self.mmu_mode && !self.priv_sig.borrow().get_priv_flag() {
-            let mut entry = match self.v_addr_to_entry(pc){
-                Ok(entry) => {
-                    entry
-                }
+            let mut entry = match self.v_addr_to_entry(pc) {
+                Ok(entry) => entry,
                 Err(e) => {
                     return Err(e);
                 }
@@ -280,5 +270,59 @@ impl Mmu {
         self.err_addr = 0;
         self.err_cause = 0;
         self.tlb_miss_page = 0;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::core::cpu::psw::Psw;
+    use crate::core::error::tlb_error::TlbError;
+    use crate::core::interrupt::intr_controller::IntrController;
+    use crate::core::memory::memory::Memory;
+    use crate::core::memory::mmu::Mmu;
+    use std::cell::RefCell;
+    use std::rc::Rc;
+
+    #[test]
+    fn test_mmu_write_read() {
+        let memory = Rc::new(RefCell::new(Memory::new()));
+        let intr_sig = Rc::new(RefCell::new(IntrController::new()));
+        let psw = Rc::new(RefCell::new(Psw::new()));
+        let mut mmu = Mmu::new(memory, intr_sig, psw);
+
+        assert_eq!(mmu.write16(0x1000, 1), Ok(()));
+        assert_eq!(mmu.read16(0x1000), Ok(1));
+        assert_eq!(mmu.read16(0x2000), Ok(0));
+    }
+
+    #[test]
+    fn test_ipl_load() {
+        let memory = Rc::new(RefCell::new(Memory::new()));
+        let intr_sig = Rc::new(RefCell::new(IntrController::new()));
+        let psw = Rc::new(RefCell::new(Psw::new()));
+        let mut mmu = Mmu::new(memory, intr_sig, psw);
+
+        mmu.load_ipl();
+        assert_eq!(mmu.write16(0xe000, 1), Err(TlbError::ReadOnly));
+        assert_eq!(mmu.write16(0xfffe, 1), Err(TlbError::ReadOnly));
+        mmu.detach_ipl();
+
+        assert_eq!(mmu.write16(0xe000, 1), Ok(()));
+        assert_eq!(mmu.read16(0xe000), Ok(1));
+        assert_eq!(mmu.write16(0xfffe, 1), Ok(()));
+        assert_eq!(mmu.read16(0xfffe), Ok(1));
+    }
+
+    #[test]
+    fn test_tlb_entries() {
+        let memory = Rc::new(RefCell::new(Memory::new()));
+        let intr_sig = Rc::new(RefCell::new(IntrController::new()));
+        let psw = Rc::new(RefCell::new(Psw::new()));
+        let mut mmu = Mmu::new(memory, intr_sig, psw);
+
+        mmu.set_tlb_high_8(1, 0xff);
+        mmu.set_tlb_low_16(1, 0xffff);
+        assert_eq!(mmu.get_tlb_high_8(1), 0xff);
+        assert_eq!(mmu.get_tlb_low_16(1), 0xffff);
     }
 }
