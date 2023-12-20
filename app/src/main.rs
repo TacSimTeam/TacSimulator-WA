@@ -1,7 +1,6 @@
 use crate::core::tac_wrap::TacWrap as Tac;
 use crate::util::fetch::fetch_and_convert_into_vector;
 use std::cell::RefCell;
-use std::io::Read;
 use std::rc::Rc;
 use yew::{function_component, html, Callback, Html};
 use yew_hooks::use_async;
