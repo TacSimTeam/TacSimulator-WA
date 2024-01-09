@@ -52,7 +52,7 @@ impl Cpu {
             return None;
         }
 
-        if self.psw.borrow().check_flag(Flags::ENABLE_INTR as u8)
+        if self.psw.borrow().check_flag(Flags::ENABLE_INTR as u16)
             || self.intr_host.borrow_mut().is_exception_occurred()
         {
             let intr_num = self.intr_host.borrow_mut().check_intr_num();
@@ -76,6 +76,9 @@ impl Cpu {
                 return None;
             }
         };
+        // if !self.memory.borrow().is_ipl_mode() {
+        //     gloo::console::log!(&format!("inst {:?}\nPC {:02X}\nSP {:02X}", inst, self.psw.borrow().get_pc(), self.register.borrow().read(13)));
+        // }
         if let Err(_) = self.execute_instruction(inst.clone()) {
             return None;
         };
@@ -83,23 +86,18 @@ impl Cpu {
     }
 
     fn handle_interrupt(&self, intr_num: u8) -> Result<(), TlbError> {
-        self.psw.borrow_mut().set_priv_flag(true);
         let tmp = self.psw.borrow().get_flag();
+        self.psw.borrow_mut().set_priv_flag(true);
         self.psw
             .borrow_mut()
-            .set_flag((tmp & !(Flags::ENABLE_INTR as u8)) | Flags::PRIV as u8);
-
+            .set_flag((tmp & !(Flags::ENABLE_INTR as u16)) | Flags::PRIV as u16);
         self.push_val(self.psw.borrow().get_pc())?;
-        let addr = match self
+        self.push_val(tmp)?;
+        let addr = self
             .memory
             .borrow_mut()
-            .read16(INTERRUPT_VECTOR + (intr_num * 2) as u16)
-        {
-            Ok(addr) => addr,
-            Err(_) => {
-                return Err(TlbError::TlbMiss);
-            }
-        };
+            .read16(INTERRUPT_VECTOR + (intr_num * 2) as u16)?;
+
         self.psw.borrow_mut().jump(addr);
         Ok(())
     }
@@ -235,10 +233,10 @@ impl Cpu {
     }
 
     fn instr_jmp(&self, inst: Instruction) {
-        let z_flag = self.psw.borrow().check_flag(Flags::ZERO as u8);
-        let c_flag = self.psw.borrow().check_flag(Flags::CARRY as u8);
-        let s_flag = self.psw.borrow().check_flag(Flags::SIGN as u8);
-        let v_flag = self.psw.borrow().check_flag(Flags::OVERFLOW as u8);
+        let z_flag = self.psw.borrow().check_flag(Flags::ZERO as u16);
+        let c_flag = self.psw.borrow().check_flag(Flags::CARRY as u16);
+        let s_flag = self.psw.borrow().check_flag(Flags::SIGN as u16);
+        let v_flag = self.psw.borrow().check_flag(Flags::OVERFLOW as u16);
 
         match JMP::from_u8(inst.rd) {
             None => {}
@@ -345,12 +343,7 @@ impl Cpu {
         if inst.addr_mode == AddrMode::DIRECT {
             self.push_val(self.read_reg(inst.rd))?;
         } else if inst.addr_mode == AddrMode::REG_TO_REG {
-            let pop_val = match self.pop_val() {
-                Ok(val) => val,
-                Err(e) => {
-                    return Err(e);
-                }
-            };
+            let pop_val = self.pop_val()?;
             self.write_reg(inst.rd, pop_val);
         }
         self.psw.borrow_mut().next_pc();
@@ -364,15 +357,15 @@ impl Cpu {
         } else if inst.addr_mode == AddrMode::REG_TO_REG {
             let f = self.pop_val()?;
             let pc = self.pop_val()?;
-            self.psw.borrow_mut().set_flag(f as u8);
+            self.psw.borrow_mut().set_flag(f);
             self.psw.borrow_mut().jump(pc);
         }
         Ok(())
     }
 
     fn instr_in(&self, inst: Instruction) {
-        if self.psw.borrow().check_flag(Flags::PRIV as u8)
-            || self.psw.borrow().check_flag(Flags::IO_PRIV as u8)
+        if self.psw.borrow().check_flag(Flags::PRIV as u16)
+            || self.psw.borrow().check_flag(Flags::IO_PRIV as u16)
         {
             self.write_reg(
                 inst.rd,
@@ -392,8 +385,8 @@ impl Cpu {
     }
 
     fn instr_out(&self, inst: Instruction) {
-        if self.psw.borrow().check_flag(Flags::PRIV as u8)
-            || self.psw.borrow().check_flag(Flags::IO_PRIV as u8)
+        if self.psw.borrow().check_flag(Flags::PRIV as u16)
+            || self.psw.borrow().check_flag(Flags::IO_PRIV as u16)
         {
             self.io_host
                 .borrow_mut()
@@ -415,7 +408,7 @@ impl Cpu {
     }
 
     fn instr_halt(&mut self, _inst: Instruction) {
-        if self.psw.borrow().check_flag(Flags::PRIV as u8) {
+        if self.psw.borrow().check_flag(Flags::PRIV as u16) {
             self.is_halt = true;
         } else {
             self.intr_host
@@ -427,7 +420,7 @@ impl Cpu {
 
     fn read_reg(&self, num: u8) -> u16 {
         if num == RegNum::FLAG as u8 {
-            return self.psw.borrow().get_flag() as u16;
+            return self.psw.borrow().get_flag();
         } else {
             self.register.borrow().read(num)
         }
@@ -440,32 +433,31 @@ impl Cpu {
 
         let mut flags = self.psw.borrow().get_flag() & 0xf0;
         if op == OPCode::ADD {
-            // if v1_msb == v2_msb && ans_msb != v1_msb {
-            if ans > 65_535u32 {
-                flags |= Flags::OVERFLOW as u8;
+            if v1_msb == v2_msb && ans_msb != v1_msb {
+                flags |= Flags::OVERFLOW as u16;
             }
         } else if op == OPCode::SUB || op == OPCode::CMP {
             if v1_msb != v2_msb && ans_msb != v1_msb {
-                flags |= Flags::OVERFLOW as u8;
+                flags |= Flags::OVERFLOW as u16;
             }
         }
 
         if OPCode::ADD <= op && op <= OPCode::CMP {
             if (ans & 0x10000) != 0 {
-                flags |= Flags::CARRY as u8;
+                flags |= Flags::CARRY as u16;
             }
         } else if OPCode::SHLA <= op && op <= OPCode::SHRL && v2 == 1 {
             if (ans & 0x10000) != 0 {
-                flags |= Flags::CARRY as u8;
+                flags |= Flags::CARRY as u16;
             }
         }
 
         if ans_msb != 0 {
-            flags |= Flags::SIGN as u8;
+            flags |= Flags::SIGN as u16;
         }
 
         if (ans & 0xffff) == 0 {
-            flags |= Flags::ZERO as u8;
+            flags |= Flags::ZERO as u16;
         }
         self.psw.borrow_mut().set_flag(flags);
     }
@@ -495,7 +487,7 @@ impl Cpu {
 
     fn write_reg(&self, reg_num: u8, val: u16) {
         if reg_num == RegNum::FLAG as u8 {
-            self.psw.borrow_mut().set_flag(val as u8);
+            self.psw.borrow_mut().set_flag(val);
         } else {
             self.register.borrow_mut().write(reg_num, val);
         }

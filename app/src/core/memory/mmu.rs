@@ -44,12 +44,7 @@ impl Mmu {
     pub fn read8(&mut self, addr: u16) -> Result<u8, TlbError> {
         let mut addr = addr;
         if self.mmu_mode && !self.priv_sig.borrow().get_priv_flag() {
-            let mut entry = match self.v_addr_to_entry(addr) {
-                Ok(entry) => entry,
-                Err(e) => {
-                    return Err(e);
-                }
-            };
+            let mut entry = self.v_addr_to_entry(addr)?;
             if !entry.is_readable() {
                 self.report_mem_vio_error(addr);
                 return Ok(0u8);
@@ -66,13 +61,8 @@ impl Mmu {
             return Err(TlbError::ReadOnly);
         }
         if self.mmu_mode && !self.priv_sig.borrow().get_priv_flag() {
-            let mut entry = match self.v_addr_to_entry(addr) {
-                Ok(entry) => entry,
-                Err(e) => {
-                    return Err(e);
-                }
-            };
-            if !entry.is_readable() {
+            let mut entry = self.v_addr_to_entry(addr)?;
+            if !entry.is_writable() {
                 self.report_mem_vio_error(addr);
                 return Ok(());
             }
@@ -91,13 +81,9 @@ impl Mmu {
             self.report_bad_addr_error(addr);
             return Ok(0);
         }
+
         if self.mmu_mode && !self.priv_sig.borrow().get_priv_flag() {
-            let mut entry = match self.v_addr_to_entry(addr) {
-                Ok(entry) => entry,
-                Err(e) => {
-                    return Err(e);
-                }
-            };
+            let mut entry = self.v_addr_to_entry(addr)?;
             if !entry.is_readable() {
                 self.report_mem_vio_error(addr);
                 return Ok(0);
@@ -120,12 +106,7 @@ impl Mmu {
         }
 
         if self.mmu_mode & !self.priv_sig.borrow().get_priv_flag() {
-            let mut entry = match self.v_addr_to_entry(addr) {
-                Ok(entry) => entry,
-                Err(e) => {
-                    return Err(e);
-                }
-            };
+            let mut entry = self.v_addr_to_entry(addr)?;
 
             if !entry.is_writable() {
                 self.report_mem_vio_error(addr);
@@ -270,6 +251,10 @@ impl Mmu {
         self.err_addr = 0;
         self.err_cause = 0;
         self.tlb_miss_page = 0;
+    }
+
+    pub fn is_ipl_mode(&self) -> bool {
+        self.ipl_mode
     }
 }
 

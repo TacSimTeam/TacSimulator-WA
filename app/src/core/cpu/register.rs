@@ -32,7 +32,7 @@ impl Register {
                     self.usp
                 }
             }
-            14 => self.usp & 0xffff,
+            14 => self.usp,
             _ => self.generals[num as usize],
         }
     }

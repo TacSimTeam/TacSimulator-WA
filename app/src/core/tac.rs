@@ -127,7 +127,7 @@ impl Tac {
 
         let start_time = Date::now();
         loop {
-            let _inst = self.cpu.run();
+            let inst = self.cpu.run();
             if self.components.borrow().get_break_switch()
             // && self.psw.borrow().get_pc() == self.break_addr
             {
