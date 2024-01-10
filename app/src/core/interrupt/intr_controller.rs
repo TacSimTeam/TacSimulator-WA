@@ -1,6 +1,6 @@
 use crate::core::interrupt::interrupt::Interrupt;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, PartialEq)]
 pub struct IntrController {
     intr_flags: Vec<bool>,
 }

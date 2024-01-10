@@ -6,7 +6,7 @@ use std::rc::Rc;
 use web_sys::HtmlTextAreaElement;
 use yew::NodeRef;
 
-#[derive(PartialEq, Clone, Debug)]
+#[derive(PartialEq, Clone)]
 pub struct TerminalIO {
     sendable_intr_flag: bool,
     recivable_intr_flag: bool,

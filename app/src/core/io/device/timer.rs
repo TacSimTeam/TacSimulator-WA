@@ -4,7 +4,7 @@ use crate::util::interval::{clear_interval, set_interval};
 use std::cell::RefCell;
 use std::rc::Rc;
 
-#[derive(PartialEq, Clone, Debug)]
+#[derive(PartialEq, Clone)]
 pub struct Timer {
     interval_id_timer0: Option<i32>,
     interval_id_timer1: Option<i32>,

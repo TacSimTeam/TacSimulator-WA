@@ -1,4 +1,4 @@
-#[derive(Default, Clone, Copy, Debug, PartialOrd, PartialEq)]
+#[derive(Clone, Copy, PartialOrd, PartialEq)]
 pub struct TlbEntry {
     pub value: u32,
 }

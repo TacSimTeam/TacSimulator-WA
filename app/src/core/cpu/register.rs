@@ -2,7 +2,7 @@ use crate::core::cpu::psw::Psw;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, PartialEq)]
 pub struct Register {
     generals: Vec<u16>,
     fp: u16,

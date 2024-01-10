@@ -1,6 +1,6 @@
-use crate::core::cpu::consts::flags::Flags;
+use crate::core::cpu::consts::flags::flags;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, PartialEq)]
 pub struct Psw {
     pc: u16,
     flag: u16,
@@ -10,7 +10,7 @@ impl Psw {
     pub fn new() -> Self {
         Self {
             pc: 0xe000,
-            flag: Flags::PRIV as u16,
+            flag: flags::PRIV,
         }
     }
 
@@ -37,7 +37,7 @@ impl Psw {
     }
 
     pub fn set_flag(&mut self, flag: u16) {
-        if self.check_flag(Flags::PRIV as u16) {
+        if self.check_flag(flags::PRIV) {
             self.flag = flag;
             return;
         }
@@ -50,26 +50,26 @@ impl Psw {
     }
 
     pub fn get_priv_flag(&self) -> bool {
-        self.check_flag(Flags::PRIV as u16)
+        self.check_flag(flags::PRIV)
     }
 
     pub fn set_priv_flag(&mut self, is_priv: bool) {
         if is_priv {
-            self.flag = self.flag | Flags::PRIV as u16;
+            self.flag = self.flag | flags::PRIV;
         } else {
-            self.flag = self.flag & (!(Flags::PRIV as u16) & 0xff);
+            self.flag = self.flag & (!(flags::PRIV) & 0xff);
         }
     }
 
     pub fn reset(&mut self) {
         self.pc = 0xe000;
-        self.flag = Flags::PRIV as u16;
+        self.flag = flags::PRIV;
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::core::cpu::consts::flags::Flags;
+    use crate::core::cpu::consts::flags::flags;
     use crate::core::cpu::psw::Psw;
 
     #[test]
@@ -84,17 +84,17 @@ mod tests {
     #[test]
     fn test_psw_change_flag() {
         let mut psw = Psw::new();
-        assert!(!psw.check_flag(Flags::ZERO as u16));
-        psw.set_flag(Flags::ZERO as u16);
-        assert!(psw.check_flag(Flags::ZERO as u16));
+        assert!(!psw.check_flag(flags::ZERO));
+        psw.set_flag(flags::ZERO);
+        assert!(psw.check_flag(flags::ZERO));
 
-        assert!(!psw.check_flag(Flags::SIGN as u16));
-        psw.set_flag(Flags::SIGN as u16);
-        assert!(psw.check_flag(Flags::SIGN as u16));
+        assert!(!psw.check_flag(flags::SIGN));
+        psw.set_flag(flags::SIGN);
+        assert!(psw.check_flag(flags::SIGN));
 
         psw.reset();
-        assert!(!psw.check_flag(Flags::ENABLE_INTR as u16));
-        psw.set_flag(Flags::ENABLE_INTR as u16);
-        assert!(psw.check_flag(Flags::ENABLE_INTR as u16));
+        assert!(!psw.check_flag(flags::ENABLE_INTR));
+        psw.set_flag(flags::ENABLE_INTR);
+        assert!(psw.check_flag(flags::ENABLE_INTR));
     }
 }

@@ -5,7 +5,7 @@ use crate::core::traits::console::console::{IConsoleState, IConsoleStateAction};
 use std::cell::RefCell;
 use std::rc::Rc;
 
-#[derive(PartialEq, Clone, Debug)]
+#[derive(PartialEq, Clone)]
 pub struct ConsoleState {
     pub memory: Rc<RefCell<Memory>>,
     pub psw: Rc<RefCell<Psw>>,

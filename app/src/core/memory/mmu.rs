@@ -9,7 +9,7 @@ use crate::core::memory::tlb::TlbEntry;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-#[derive(PartialEq, Clone, Debug)]
+#[derive(PartialEq, Clone)]
 pub struct Mmu {
     memory: Rc<RefCell<Memory>>,
     intr_sig: Rc<RefCell<IntrController>>,
@@ -222,6 +222,7 @@ impl Mmu {
         for i in 0xe000..=0xffff {
             self.memory.borrow_mut().write8(i as u16, 0);
         }
+        // self.memory.borrow_mut().write16(INTERRUPT_VECTOR + 8 * 2, 13578);
     }
 
     pub fn enable(&mut self) {

@@ -1,28 +1,10 @@
-#[allow(non_camel_case_types)]
-#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
-pub enum AddrMode {
-    DIRECT,
-    INDEXED,
-    IMMEDIATE,
-    FP_RELATIVE,
-    REG_TO_REG,
-    SHORT_IMMEDIATE,
-    REG_INDIRECT,
-    BYTE_REG_INDIRECT,
-}
-
-impl AddrMode {
-    pub fn from_u8(index: u8) -> Option<AddrMode> {
-        match index {
-            0 => Some(AddrMode::DIRECT),
-            1 => Some(AddrMode::INDEXED),
-            2 => Some(AddrMode::IMMEDIATE),
-            3 => Some(AddrMode::FP_RELATIVE),
-            4 => Some(AddrMode::REG_TO_REG),
-            5 => Some(AddrMode::SHORT_IMMEDIATE),
-            6 => Some(AddrMode::REG_INDIRECT),
-            7 => Some(AddrMode::BYTE_REG_INDIRECT),
-            _ => None,
-        }
-    }
+pub(crate) mod addr_mode {
+    pub const DIRECT: u8 = 0;
+    pub const INDEXED: u8 = 1;
+    pub const IMMEDIATE: u8 = 2;
+    pub const FP_RELATIVE: u8 = 3;
+    pub const REG_TO_REG: u8 = 4;
+    pub const SHORT_IMMEDIATE: u8 = 5;
+    pub const REG_INDIRECT: u8 = 6;
+    pub const BYTE_REG_INDIRECT: u8 = 7;
 }

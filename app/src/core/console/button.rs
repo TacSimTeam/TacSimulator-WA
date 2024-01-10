@@ -70,7 +70,7 @@ pub enum ButtonArg<'a> {
     Tac(&'a mut Tac),
 }
 
-#[derive(PartialEq, Clone, Debug)]
+#[derive(PartialEq, Clone)]
 pub struct Button {
     pos_x: f64,
     pos_y: f64,

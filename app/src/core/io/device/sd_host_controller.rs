@@ -6,7 +6,7 @@ use crate::core::memory::memory::Memory;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-#[derive(Clone, PartialEq, Debug)]
+#[derive(Clone, PartialEq)]
 pub struct SdHostController {
     idle_flag: bool,
     error_flag: bool,
@@ -143,7 +143,7 @@ impl SdHostController {
             return Err(SdIoError::SdIsNotOpen);
         } else {
             for i in 0..SECTOR_SIZE {
-                self.buf.borrow_mut()[(sect_addr * SECTOR_SIZE + i)] = data[i];
+                self.buf.borrow_mut()[sect_addr * SECTOR_SIZE + i] = data[i];
             }
         }
         Ok(())

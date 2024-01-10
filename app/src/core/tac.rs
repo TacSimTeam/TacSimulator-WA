@@ -19,8 +19,13 @@ use crate::util::timeout::{clear_timeout, Timeout};
 use std::cell::RefCell;
 use std::rc::Rc;
 use wasm_bindgen::closure::Closure;
-use web_sys::js_sys::Date;
+use wasm_bindgen::prelude::wasm_bindgen;
 use yew::{NodeRef, Properties};
+
+#[wasm_bindgen(js_namespace = Date)]
+extern "C" {
+    fn now() -> f64;
+}
 
 #[derive(PartialEq, Clone)]
 pub struct Tac {
@@ -125,7 +130,7 @@ impl Tac {
         self.timers.borrow_mut().restart_timer(TimerNum::TIMER0);
         self.timers.borrow_mut().restart_timer(TimerNum::TIMER1);
 
-        let start_time = Date::now();
+        let start_time = now();
         loop {
             let inst = self.cpu.run();
             if self.components.borrow().get_break_switch()
@@ -141,7 +146,7 @@ impl Tac {
                 self.stop();
                 return;
             }
-            let end_time = Date::now();
+            let end_time = now();
             if end_time - start_time > 15.0 {
                 self.stop();
                 let mut clone = self.clone();
@@ -158,8 +163,8 @@ impl Tac {
     }
 
     fn stop(&mut self) {
-        self.timers.borrow_mut().stop_timer(TimerNum::TIMER0);
-        self.timers.borrow_mut().stop_timer(TimerNum::TIMER1);
+        self.timers.borrow_mut().pause_timer(TimerNum::TIMER0);
+        self.timers.borrow_mut().pause_timer(TimerNum::TIMER1);
         if let Some(id) = self.cpu_event.take() {
             clear_timeout(id);
         }

@@ -7,7 +7,7 @@ use std::rc::Rc;
 use web_sys::HtmlInputElement;
 use yew::NodeRef;
 
-#[derive(PartialEq, Clone, Debug)]
+#[derive(PartialEq, Clone)]
 pub struct Logger {
     sendable_intr_flag: bool,
     buf: String,

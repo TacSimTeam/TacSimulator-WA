@@ -10,14 +10,14 @@ const LED_COLOR_GREEN_DARK: &str = "#004000";
 const LED_COLOR_YELLOW_LIGHT: &str = "#FFFF00";
 const LED_COLOR_YELLOW_DARK: &str = "#DAA520";
 
-#[derive(PartialEq, Clone, Debug)]
+#[derive(PartialEq, Clone)]
 pub enum LedColor {
     Red,
     Yellow,
     Green,
 }
 
-#[derive(PartialEq, Clone, Debug)]
+#[derive(PartialEq, Clone)]
 pub struct Led {
     pos_x: f64,
     pos_y: f64,

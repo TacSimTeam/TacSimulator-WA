@@ -4,13 +4,13 @@ use crate::core::traits::io::device::timer::TimerEvent;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-#[derive(Clone, PartialEq, Debug)]
+#[derive(Clone, PartialEq)]
 pub enum TimerNum {
     TIMER0,
     TIMER1,
 }
 
-#[derive(Clone, PartialEq, Debug)]
+#[derive(Clone, PartialEq)]
 pub struct TimerCore {
     pub count: u16,
     pub cycle: u16,

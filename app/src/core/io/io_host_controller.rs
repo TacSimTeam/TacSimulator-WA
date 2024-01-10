@@ -12,7 +12,7 @@ use crate::core::traits::io::device::io_serial::IIOSerial;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-#[derive(PartialEq, Clone, Debug)]
+#[derive(PartialEq, Clone)]
 pub struct IOHostController {
     timers: Rc<RefCell<Timer>>,
     terminal: Rc<RefCell<TerminalIO>>,

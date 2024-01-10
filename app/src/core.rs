@@ -37,7 +37,6 @@ pub mod io {
     pub mod device {
         pub mod logger;
         pub mod sd_host_controller;
-        pub mod stdout;
         pub mod terminal_io;
         pub mod timer;
         pub mod timer_core;
