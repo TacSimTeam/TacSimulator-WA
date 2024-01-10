@@ -6,8 +6,7 @@ use serde::{Deserialize, Serialize};
 use std::io::Read;
 use std::net::SocketAddr;
 use tower_http::cors::CorsLayer;
-
-const BASE_PATH: &str = "./assets/";
+use server::consts::BASE_PATH;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Dmg {
@@ -31,7 +30,6 @@ async fn get_dmg(Path(path): Path<String>) -> impl IntoResponse {
     Json(get_dmg_data(path))
 }
 
-// TODO サーバー側でファイルを開いてバイト列にしたのを送信する感じで行こう
 #[tokio::main]
 async fn main() {
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
