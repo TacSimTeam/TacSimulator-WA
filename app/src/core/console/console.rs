@@ -66,7 +66,7 @@ impl Console {
             }
         }
         self.update();
-        return is_click;
+        is_click
     }
 
     fn update(&mut self) {
@@ -207,7 +207,7 @@ impl Component for Console {
     }
 
     fn view(&self, ctx: &Context<Self>) -> Html {
-        return html! {
+        html! {
             <canvas
                 id="canvas"
                 ref={self.ctx.clone()}
@@ -215,6 +215,6 @@ impl Component for Console {
                 height="390px"
                 onclick={ctx.link().callback(|e: MouseEvent| Msg::Clicked((e.client_x(), e.client_y())))}
             />
-        };
+        }
     }
 }

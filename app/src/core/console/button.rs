@@ -119,10 +119,10 @@ impl Button {
     }
 
     pub fn is_btn_clicked(&self, click_x: f64, click_y: f64) -> bool {
-        return self.pos_x <= click_x
+        self.pos_x <= click_x
             && click_x <= self.pos_x + BUTTON_WIDTH
             && self.pos_y <= click_y
-            && click_y <= self.pos_y + BUTTON_HEIGHT;
+            && click_y <= self.pos_y + BUTTON_HEIGHT
     }
 
     pub fn set_event(&mut self, f: ButtonEventType) {

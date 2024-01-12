@@ -91,7 +91,7 @@ mod tests {
 
     #[test]
     fn test_calc() {
-        let mut intr_sig = Rc::new(RefCell::new(IntrController::new()));
+        let intr_sig = Rc::new(RefCell::new(IntrController::new()));
         let mut alu = Alu::new(Rc::clone(&intr_sig));
 
         assert_eq!(alu.calc(opcode::ADD, 0x0001, 0x0001), 0x0002);

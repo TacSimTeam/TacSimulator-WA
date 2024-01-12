@@ -60,7 +60,7 @@ impl Timer {
             TimerNum::TIMER1 => Rc::clone(&self.timer1),
         }
         .borrow_mut()
-        .pause_flag = true;
+        .pause();
     }
 
     pub fn restart_timer(&mut self, timer_num: TimerNum) {

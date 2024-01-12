@@ -132,7 +132,7 @@ impl Tac {
 
         let start_time = now();
         loop {
-            let inst = self.cpu.run();
+            let _inst = self.cpu.run();
             if self.components.borrow().get_break_switch()
             // && self.psw.borrow().get_pc() == self.break_addr
             {

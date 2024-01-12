@@ -150,7 +150,9 @@ impl SdHostController {
     }
 
     pub fn init(&self) {
-        self.intr_sig.borrow_mut().interrupt(Interrupt::MICRO_SD);
+        if self.intr_flag {
+            self.intr_sig.borrow_mut().interrupt(Interrupt::MICRO_SD);
+        }
     }
 
     pub fn reset(&mut self) {

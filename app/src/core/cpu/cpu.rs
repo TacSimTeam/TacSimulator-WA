@@ -1,3 +1,4 @@
+use crate::core::consts::INTERRUPT_VECTOR;
 use crate::core::cpu::alu::Alu;
 use crate::core::cpu::consts::addr_mode::addr_mode;
 use crate::core::cpu::consts::flags::flags;
@@ -14,7 +15,6 @@ use crate::core::io::io_map_addr::IOMapAddr;
 use crate::core::memory::mmu::Mmu;
 use std::cell::RefCell;
 use std::rc::Rc;
-use crate::core::consts::INTERRUPT_VECTOR;
 
 #[derive(PartialEq, Clone)]
 pub struct Cpu {
@@ -105,7 +105,7 @@ impl Cpu {
     fn decode(&self, inst_data: u16) -> Instruction {
         Instruction {
             opcode: (inst_data >> 11) as u8,
-            addr_mode: ((inst_data >> 8)) as u8 & 0x07,
+            addr_mode: (inst_data >> 8) as u8 & 0x07,
             rd: ((inst_data >> 4) & 0x000f) as u8,
             rx: ((inst_data) & 0x000f) as u8,
             ea: 0,
@@ -113,16 +113,10 @@ impl Cpu {
     }
 
     fn calc_effective_address(&self, addr_mode: u8, rx: u8) -> Result<u16, TlbError> {
-        let data = match self
+        let data = self
             .memory
             .borrow_mut()
-            .read16(self.psw.borrow().get_pc() + 2)
-        {
-            Ok(data) => data,
-            Err(_) => {
-                return Err(TlbError::TlbMiss);
-            }
-        };
+            .read16(self.psw.borrow().get_pc() + 2)?;
         return Ok(match addr_mode {
             addr_mode::DIRECT => data,
             addr_mode::INDEXED => data + self.read_reg(rx),
@@ -205,11 +199,10 @@ impl Cpu {
             {
                 return Err(e);
             };
-        } else {
-            if let Err(e) = self.memory.borrow_mut().write16(inst.ea, data) {
+        } else if let Err(e) = self.memory.borrow_mut().write16(inst.ea, data) {
                 return Err(e);
-            };
         }
+
         self.psw.borrow_mut().next_pc();
         if self.is_two_word_instruction(inst.addr_mode) {
             self.psw.borrow_mut().next_pc();
@@ -344,8 +337,7 @@ impl Cpu {
         if inst.addr_mode == addr_mode::DIRECT {
             self.push_val(self.read_reg(inst.rd))?;
         } else if inst.addr_mode == addr_mode::REG_TO_REG {
-            let pop_val = self.pop_val()?;
-            self.write_reg(inst.rd, pop_val);
+            self.write_reg(inst.rd, self.pop_val()?);
         }
         self.psw.borrow_mut().next_pc();
         Ok(())
@@ -365,8 +357,7 @@ impl Cpu {
     }
 
     fn instr_in(&self, inst: Instruction) {
-        if self.psw.borrow().check_flag(flags::PRIV as u16)
-            || self.psw.borrow().check_flag(flags::IO_PRIV as u16)
+        if self.psw.borrow().check_flag(flags::PRIV) || self.psw.borrow().check_flag(flags::IO_PRIV)
         {
             self.write_reg(
                 inst.rd,
@@ -386,8 +377,7 @@ impl Cpu {
     }
 
     fn instr_out(&self, inst: Instruction) {
-        if self.psw.borrow().check_flag(flags::PRIV)
-            || self.psw.borrow().check_flag(flags::IO_PRIV)
+        if self.psw.borrow().check_flag(flags::PRIV) || self.psw.borrow().check_flag(flags::IO_PRIV)
         {
             self.io_host
                 .borrow_mut()
@@ -437,20 +427,16 @@ impl Cpu {
             if v1_msb == v2_msb && ans_msb != v1_msb {
                 flags |= flags::OVERFLOW;
             }
-        } else if op == opcode::SUB || op == opcode::CMP {
-            if v1_msb != v2_msb && ans_msb != v1_msb {
-                flags |= flags::OVERFLOW;
-            }
+        } else if (op == opcode::SUB || op == opcode::CMP) && v1_msb != v2_msb && ans_msb != v1_msb {
+            flags |= flags::OVERFLOW;
         }
 
         if opcode::ADD <= op && op <= opcode::CMP {
             if (ans & 0x10000) != 0 {
                 flags |= flags::CARRY;
             }
-        } else if opcode::SHLA <= op && op <= opcode::SHRL && v2 == 1 {
-            if (ans & 0x10000) != 0 {
-                flags |= flags::CARRY;
-            }
+        } else if opcode::SHLA <= op && op <= opcode::SHRL && v2 == 1 && (ans & 0x10000) != 0 {
+            flags |= flags::CARRY;
         }
 
         if ans_msb != 0 {
@@ -504,8 +490,7 @@ impl Cpu {
     }
 
     fn push_val(&self, val: u16) -> Result<(), TlbError> {
-        self
-            .memory
+        self.memory
             .borrow_mut()
             .write16(self.read_reg(RegNum::SP as u8) - 2, val)?;
         self.write_reg(RegNum::SP as u8, self.read_reg(RegNum::SP as u8) - 2);
@@ -516,9 +501,9 @@ impl Cpu {
         let val = self
             .memory
             .borrow_mut()
-            .read16(self.read_reg(RegNum::SP as u8));
+            .read16(self.read_reg(RegNum::SP as u8))?;
         self.write_reg(RegNum::SP as u8, self.read_reg(RegNum::SP as u8) + 2);
-        val
+        Ok(val)
     }
 
     pub fn reset(&mut self) {

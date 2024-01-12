@@ -5,7 +5,7 @@ use crate::core::console::switch::{Switch, SwitchName};
 use crate::core::traits::console::console::IConsoleStateAction;
 use web_sys::CanvasRenderingContext2d;
 
-#[derive(PartialEq, Clone)]
+#[derive(PartialEq, Clone, Default)]
 pub struct Components {
     pub addr_led: Vec<Led>,
     pub buttons: Vec<Button>,

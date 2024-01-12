@@ -1,4 +1,5 @@
 #[derive(Clone, Copy, PartialOrd, PartialEq)]
+#[cfg_attr(test, derive(Debug))]
 pub struct TlbEntry {
     pub value: u32,
 }

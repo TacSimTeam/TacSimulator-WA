@@ -1,6 +1,7 @@
 use crate::core::consts::MEMORY_SIZE;
 
 #[derive(Clone, PartialOrd, PartialEq)]
+#[cfg_attr(test, derive(Debug))]
 pub struct Memory {
     mem: Vec<u8>,
     size: i32,

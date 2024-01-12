@@ -82,7 +82,7 @@ impl IConsoleState for ConsoleState {
                 .borrow_mut()
                 .jump(((self.psw.borrow().get_pc() & 0x00ff) << 8) | (val & 0x00ff) as u16),
             15u8 => self.psw.borrow_mut().set_flag(
-                ((((self.psw.borrow().get_flag() & 0x00ff) as u16) << 8) | ((val & 0x00ff) as u16)),
+                (((self.psw.borrow().get_flag() & 0x00ff) as u16) << 8) | ((val & 0x00ff) as u16),
             ),
             16u8 | 17u8 => {
                 self.write_mem_data(((self.get_mem_addr() & 0x00ff) << 8) | (val & 0x00ff) as u16)
