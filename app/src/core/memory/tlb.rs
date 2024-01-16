@@ -68,26 +68,26 @@ mod tests {
     use crate::core::memory::tlb::TlbEntry;
 
     #[test]
-    fn test_tlb_constructor() {
-        let expected_tlb = TlbEntry { value: 0x009f00 };
-        assert_eq!(expected_tlb, TlbEntry::new(0x009f00))
-    }
+    fn test_tlb_util() {
+        let mut entry = TlbEntry::new(0x00aaffbb);
 
-    #[test]
-    fn test_tlb_get_high_8() {
-        let tlb = TlbEntry { value: 0x009f00 };
-        assert_eq!(tlb.get_high_8(), 0x00u8)
-    }
+        assert_eq!(entry.get_high_8(), 0xaa);
+        assert_eq!(entry.get_low_16(), 0xffbb);
 
-    #[test]
-    fn test_tlb_is_valid() {
-        let tlb = TlbEntry::new(0x009f00);
-        assert!(tlb.is_valid())
-    }
+        entry.set_high_8(0x22);
+        assert_eq!(entry.get_high_8(), 0x22);
 
-    #[test]
-    fn test_tlb_get_low_16() {
-        let tlb = TlbEntry::new(0x009f00);
-        assert_eq!(tlb.get_low_16(), 0x9f00)
+        entry.set_low_16(0xff44);
+        assert_eq!(entry.get_low_16(), 0xff44);
+
+        entry.set_high_8(0xaa);
+        entry.set_low_16(0xffbb);
+        assert_eq!(entry.get_high_8(), 0xaa);
+        assert_eq!(entry.get_low_16(), 0xffbb);
+
+        assert!(entry.is_valid());
+        assert!(entry.is_readable());
+        assert!(entry.is_writable());
+        assert!(entry.is_executable());
     }
 }
