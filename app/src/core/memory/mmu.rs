@@ -128,12 +128,7 @@ impl Mmu {
             return Ok(0);
         }
         if self.mmu_mode && !self.priv_sig.borrow().get_priv_flag() {
-            let mut entry = match self.v_addr_to_entry(pc) {
-                Ok(entry) => entry,
-                Err(e) => {
-                    return Err(e);
-                }
-            };
+            let mut entry = self.v_addr_to_entry(pc)?;
             if !entry.is_executable() {
                 self.report_mem_vio_error(pc);
                 return Ok(0);
@@ -222,7 +217,6 @@ impl Mmu {
         for i in 0xe000..=0xffff {
             self.memory.borrow_mut().write8(i as u16, 0);
         }
-        // self.memory.borrow_mut().write16(INTERRUPT_VECTOR + 8 * 2, 13578);
     }
 
     pub fn enable(&mut self) {
@@ -240,6 +234,7 @@ impl Mmu {
         }
         self.ipl_mode = true;
     }
+
     pub fn reset(&mut self) {
         for i in 0..=0xffff {
             self.memory.borrow_mut().write8(i, 0);
