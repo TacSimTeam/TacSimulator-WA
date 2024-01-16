@@ -16,7 +16,7 @@ impl Psw {
 
     pub fn next_pc(&mut self) {
         if self.pc >= 0xfffe {
-            gloo::console::log!("PCの値が0xffffを超える")
+            gloo::console::warn!("PCの値が0xffffを超える")
         }
         self.pc += 2;
     }
