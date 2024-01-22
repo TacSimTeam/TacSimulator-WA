@@ -39,16 +39,16 @@ impl Register {
 
     pub fn write(&mut self, num: u8, val: u16) {
         match num {
-            12 => self.fp = val & 0xffff,
+            12 => self.fp = val,
             13 => {
                 if self.priv_sig.borrow().get_priv_flag() {
-                    self.ssp = val & 0xffff
+                    self.ssp = val;
                 } else {
-                    self.usp = val & 0xffff
+                    self.usp = val;
                 }
             }
-            14 => self.usp = val & 0xffff,
-            _ => self.generals[num as usize] = val & 0xffff,
+            14 => self.usp = val,
+            _ => self.generals[num as usize] = val,
         }
     }
 

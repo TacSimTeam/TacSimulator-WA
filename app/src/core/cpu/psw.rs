@@ -42,7 +42,7 @@ impl Psw {
             return;
         }
 
-        self.flag = (0xe0 & self.flag) | (0x1f & flag);
+        self.flag = (0x00e0 & self.flag) | (0xff1f & flag);
     }
 
     pub fn check_flag(&self, flag: u16) -> bool {

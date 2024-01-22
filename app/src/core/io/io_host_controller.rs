@@ -64,38 +64,38 @@ impl IOHostController {
             IOMapAddr::RN4020_RECEIVE_SERVE => self.log.borrow_mut().receive().into(),
             IOMapAddr::RN4020_STAT_CTRL => self.get_rn4020_status(),
             IOMapAddr::RN4020_CONNECTION => 0x01,
-            IOMapAddr::MMU_TLB0HIGH => self.mmu.borrow().get_tlb_high_8(0).into(),
-            IOMapAddr::MMU_TLB0LOW => self.mmu.borrow().get_tlb_low_16(0).into(),
-            IOMapAddr::MMU_TLB1HIGH => self.mmu.borrow().get_tlb_high_8(1).into(),
-            IOMapAddr::MMU_TLB1LOW => self.mmu.borrow().get_tlb_low_16(1).into(),
-            IOMapAddr::MMU_TLB2HIGH => self.mmu.borrow().get_tlb_high_8(2).into(),
-            IOMapAddr::MMU_TLB2LOW => self.mmu.borrow().get_tlb_low_16(2).into(),
-            IOMapAddr::MMU_TLB3HIGH => self.mmu.borrow().get_tlb_high_8(3).into(),
-            IOMapAddr::MMU_TLB3LOW => self.mmu.borrow().get_tlb_low_16(3).into(),
-            IOMapAddr::MMU_TLB4HIGH => self.mmu.borrow().get_tlb_high_8(4).into(),
-            IOMapAddr::MMU_TLB4LOW => self.mmu.borrow().get_tlb_low_16(4).into(),
-            IOMapAddr::MMU_TLB5HIGH => self.mmu.borrow().get_tlb_high_8(5).into(),
-            IOMapAddr::MMU_TLB5LOW => self.mmu.borrow().get_tlb_low_16(5).into(),
-            IOMapAddr::MMU_TLB6HIGH => self.mmu.borrow().get_tlb_high_8(6).into(),
-            IOMapAddr::MMU_TLB6LOW => self.mmu.borrow().get_tlb_low_16(6).into(),
-            IOMapAddr::MMU_TLB7HIGH => self.mmu.borrow().get_tlb_high_8(7).into(),
-            IOMapAddr::MMU_TLB7LOW => self.mmu.borrow().get_tlb_low_16(7).into(),
-            IOMapAddr::MMU_TLB8HIGH => self.mmu.borrow().get_tlb_high_8(8).into(),
-            IOMapAddr::MMU_TLB8LOW => self.mmu.borrow().get_tlb_low_16(8).into(),
-            IOMapAddr::MMU_TLB9HIGH => self.mmu.borrow().get_tlb_high_8(9).into(),
-            IOMapAddr::MMU_TLB9LOW => self.mmu.borrow().get_tlb_low_16(9).into(),
-            IOMapAddr::MMU_TLB10HIGH => self.mmu.borrow().get_tlb_high_8(10).into(),
-            IOMapAddr::MMU_TLB10LOW => self.mmu.borrow().get_tlb_low_16(10).into(),
-            IOMapAddr::MMU_TLB11HIGH => self.mmu.borrow().get_tlb_high_8(11).into(),
-            IOMapAddr::MMU_TLB11LOW => self.mmu.borrow().get_tlb_low_16(11).into(),
-            IOMapAddr::MMU_TLB12HIGH => self.mmu.borrow().get_tlb_high_8(12).into(),
-            IOMapAddr::MMU_TLB12LOW => self.mmu.borrow().get_tlb_low_16(12).into(),
-            IOMapAddr::MMU_TLB13HIGH => self.mmu.borrow().get_tlb_high_8(13).into(),
-            IOMapAddr::MMU_TLB13LOW => self.mmu.borrow().get_tlb_low_16(13).into(),
-            IOMapAddr::MMU_TLB14HIGH => self.mmu.borrow().get_tlb_high_8(14).into(),
-            IOMapAddr::MMU_TLB14LOW => self.mmu.borrow().get_tlb_low_16(14).into(),
-            IOMapAddr::MMU_TLB15HIGH => self.mmu.borrow().get_tlb_high_8(15).into(),
-            IOMapAddr::MMU_TLB15LOW => self.mmu.borrow().get_tlb_low_16(15).into(),
+            IOMapAddr::MMU_TLB0HIGH => self.mmu.borrow().get_tlb_high_8(0) as u16,
+            IOMapAddr::MMU_TLB0LOW => self.mmu.borrow().get_tlb_low_16(0),
+            IOMapAddr::MMU_TLB1HIGH => self.mmu.borrow().get_tlb_high_8(1) as u16,
+            IOMapAddr::MMU_TLB1LOW => self.mmu.borrow().get_tlb_low_16(1),
+            IOMapAddr::MMU_TLB2HIGH => self.mmu.borrow().get_tlb_high_8(2) as u16,
+            IOMapAddr::MMU_TLB2LOW => self.mmu.borrow().get_tlb_low_16(2),
+            IOMapAddr::MMU_TLB3HIGH => self.mmu.borrow().get_tlb_high_8(3) as u16,
+            IOMapAddr::MMU_TLB3LOW => self.mmu.borrow().get_tlb_low_16(3),
+            IOMapAddr::MMU_TLB4HIGH => self.mmu.borrow().get_tlb_high_8(4) as u16,
+            IOMapAddr::MMU_TLB4LOW => self.mmu.borrow().get_tlb_low_16(4),
+            IOMapAddr::MMU_TLB5HIGH => self.mmu.borrow().get_tlb_high_8(5) as u16,
+            IOMapAddr::MMU_TLB5LOW => self.mmu.borrow().get_tlb_low_16(5),
+            IOMapAddr::MMU_TLB6HIGH => self.mmu.borrow().get_tlb_high_8(6) as u16,
+            IOMapAddr::MMU_TLB6LOW => self.mmu.borrow().get_tlb_low_16(6),
+            IOMapAddr::MMU_TLB7HIGH => self.mmu.borrow().get_tlb_high_8(7) as u16,
+            IOMapAddr::MMU_TLB7LOW => self.mmu.borrow().get_tlb_low_16(7),
+            // IOMapAddr::MMU_TLB8HIGH => self.mmu.borrow().get_tlb_high_8(8).into(),
+            // IOMapAddr::MMU_TLB8LOW => self.mmu.borrow().get_tlb_low_16(8).into(),
+            // IOMapAddr::MMU_TLB9HIGH => self.mmu.borrow().get_tlb_high_8(9).into(),
+            // IOMapAddr::MMU_TLB9LOW => self.mmu.borrow().get_tlb_low_16(9).into(),
+            // IOMapAddr::MMU_TLB10HIGH => self.mmu.borrow().get_tlb_high_8(10).into(),
+            // IOMapAddr::MMU_TLB10LOW => self.mmu.borrow().get_tlb_low_16(10).into(),
+            // IOMapAddr::MMU_TLB11HIGH => self.mmu.borrow().get_tlb_high_8(11).into(),
+            // IOMapAddr::MMU_TLB11LOW => self.mmu.borrow().get_tlb_low_16(11).into(),
+            // IOMapAddr::MMU_TLB12HIGH => self.mmu.borrow().get_tlb_high_8(12).into(),
+            // IOMapAddr::MMU_TLB12LOW => self.mmu.borrow().get_tlb_low_16(12).into(),
+            // IOMapAddr::MMU_TLB13HIGH => self.mmu.borrow().get_tlb_high_8(13).into(),
+            // IOMapAddr::MMU_TLB13LOW => self.mmu.borrow().get_tlb_low_16(13).into(),
+            // IOMapAddr::MMU_TLB14HIGH => self.mmu.borrow().get_tlb_high_8(14).into(),
+            // IOMapAddr::MMU_TLB14LOW => self.mmu.borrow().get_tlb_low_16(14).into(),
+            // IOMapAddr::MMU_TLB15HIGH => self.mmu.borrow().get_tlb_high_8(15).into(),
+            // IOMapAddr::MMU_TLB15LOW => self.mmu.borrow().get_tlb_low_16(15).into(),
             IOMapAddr::MMU_ERRORADDR_MMUON => self.mmu.borrow().get_error_addr(),
             IOMapAddr::MMU_ERRORCAUSE_00 => self.mmu.borrow_mut().get_error_cause().into(),
             IOMapAddr::MMU_PAGE_00 => self.mmu.borrow().get_error_page().into(),
@@ -160,101 +160,107 @@ impl IOHostController {
                     .set_sendable_intr_flag((val & 0x0080) != 0);
             }
             IOMapAddr::MMU_TLB0HIGH => {
-                self.mmu.borrow_mut().set_tlb_high_8(0, val as u32);
+                self.mmu.borrow_mut().set_tlb_high_8(0, val);
             }
             IOMapAddr::MMU_TLB0LOW => {
-                self.mmu.borrow_mut().set_tlb_low_16(0, val as u32);
+                self.mmu.borrow_mut().set_tlb_low_16(0, val);
             }
             IOMapAddr::MMU_TLB1HIGH => {
-                self.mmu.borrow_mut().set_tlb_high_8(1, val as u32);
+                self.mmu.borrow_mut().set_tlb_high_8(1, val);
             }
             IOMapAddr::MMU_TLB1LOW => {
-                self.mmu.borrow_mut().set_tlb_low_16(1, val as u32);
+                self.mmu.borrow_mut().set_tlb_low_16(1, val);
             }
             IOMapAddr::MMU_TLB2HIGH => {
-                self.mmu.borrow_mut().set_tlb_high_8(2, val as u32);
+                self.mmu.borrow_mut().set_tlb_high_8(2, val);
             }
             IOMapAddr::MMU_TLB2LOW => {
-                self.mmu.borrow_mut().set_tlb_low_16(2, val as u32);
+                self.mmu.borrow_mut().set_tlb_low_16(2, val);
             }
             IOMapAddr::MMU_TLB3HIGH => {
-                self.mmu.borrow_mut().set_tlb_high_8(3, val as u32);
+                self.mmu.borrow_mut().set_tlb_high_8(3, val);
             }
             IOMapAddr::MMU_TLB3LOW => {
-                self.mmu.borrow_mut().set_tlb_low_16(3, val as u32);
+                self.mmu.borrow_mut().set_tlb_low_16(3, val);
             }
             IOMapAddr::MMU_TLB4HIGH => {
-                self.mmu.borrow_mut().set_tlb_high_8(4, val as u32);
+                self.mmu.borrow_mut().set_tlb_high_8(4, val);
             }
             IOMapAddr::MMU_TLB4LOW => {
-                self.mmu.borrow_mut().set_tlb_low_16(4, val as u32);
+                self.mmu.borrow_mut().set_tlb_low_16(4, val);
             }
             IOMapAddr::MMU_TLB5HIGH => {
-                self.mmu.borrow_mut().set_tlb_high_8(5, val as u32);
+                self.mmu.borrow_mut().set_tlb_high_8(5, val);
             }
             IOMapAddr::MMU_TLB5LOW => {
-                self.mmu.borrow_mut().set_tlb_low_16(5, val as u32);
+                self.mmu.borrow_mut().set_tlb_low_16(5, val);
             }
             IOMapAddr::MMU_TLB6HIGH => {
-                self.mmu.borrow_mut().set_tlb_high_8(6, val as u32);
+                self.mmu.borrow_mut().set_tlb_high_8(6, val);
             }
             IOMapAddr::MMU_TLB6LOW => {
-                self.mmu.borrow_mut().set_tlb_low_16(6, val as u32);
+                self.mmu.borrow_mut().set_tlb_low_16(6, val);
             }
             IOMapAddr::MMU_TLB7HIGH => {
-                self.mmu.borrow_mut().set_tlb_high_8(7, val as u32);
+                self.mmu.borrow_mut().set_tlb_high_8(7, val);
             }
             IOMapAddr::MMU_TLB7LOW => {
-                self.mmu.borrow_mut().set_tlb_low_16(7, val as u32);
+                self.mmu.borrow_mut().set_tlb_low_16(7, val);
             }
-            IOMapAddr::MMU_TLB8HIGH => {
-                self.mmu.borrow_mut().set_tlb_high_8(8, val as u32);
-            }
-            IOMapAddr::MMU_TLB8LOW => {
-                self.mmu.borrow_mut().set_tlb_low_16(8, val as u32);
-            }
-            IOMapAddr::MMU_TLB9HIGH => {
-                self.mmu.borrow_mut().set_tlb_high_8(9, val as u32);
-            }
-            IOMapAddr::MMU_TLB9LOW => {
-                self.mmu.borrow_mut().set_tlb_low_16(9, val as u32);
-            }
-            IOMapAddr::MMU_TLB10HIGH => {
-                self.mmu.borrow_mut().set_tlb_high_8(10, val as u32);
-            }
-            IOMapAddr::MMU_TLB10LOW => {
-                self.mmu.borrow_mut().set_tlb_low_16(10, val as u32);
-            }
-            IOMapAddr::MMU_TLB11HIGH => {
-                self.mmu.borrow_mut().set_tlb_high_8(11, val as u32);
-            }
-            IOMapAddr::MMU_TLB11LOW => {
-                self.mmu.borrow_mut().set_tlb_low_16(11, val as u32);
-            }
-            IOMapAddr::MMU_TLB12HIGH => {
-                self.mmu.borrow_mut().set_tlb_high_8(12, val as u32);
-            }
-            IOMapAddr::MMU_TLB12LOW => {
-                self.mmu.borrow_mut().set_tlb_low_16(12, val as u32);
-            }
-            IOMapAddr::MMU_TLB13HIGH => {
-                self.mmu.borrow_mut().set_tlb_high_8(13, val as u32);
-            }
-            IOMapAddr::MMU_TLB13LOW => {
-                self.mmu.borrow_mut().set_tlb_low_16(13, val as u32);
-            }
-            IOMapAddr::MMU_TLB14HIGH => {
-                self.mmu.borrow_mut().set_tlb_high_8(14, val as u32);
-            }
-            IOMapAddr::MMU_TLB14LOW => {
-                self.mmu.borrow_mut().set_tlb_low_16(14, val as u32);
-            }
-            IOMapAddr::MMU_TLB15HIGH => {
-                self.mmu.borrow_mut().set_tlb_high_8(15, val as u32);
-            }
-            IOMapAddr::MMU_TLB15LOW => {
-                self.mmu.borrow_mut().set_tlb_low_16(15, val as u32);
-            }
+            // IOMapAddr::MMU_TLB8HIGH => {
+            //     self.mmu.borrow_mut().set_tlb_high_8(8, val as u32);
+            // }
+            // IOMapAddr::MMU_TLB8LOW => {
+            //     if val == self.input(IOMapAddr::MMU_TLB8LOW) & !(1 << 12)  {
+            //         gloo::console::log!("tlb reference flag cleared");
+            //     }
+            //     self.mmu.borrow_mut().set_tlb_low_16(8, val as u32);
+            //     if self.mmu.borrow().get_tlb_low_16(8) & (1 << 12) == 0 {
+            //         gloo::console::log!("ちゃんとcleared");
+            //     }
+            // }
+            // IOMapAddr::MMU_TLB9HIGH => {
+            //     self.mmu.borrow_mut().set_tlb_high_8(9, val as u32);
+            // }
+            // IOMapAddr::MMU_TLB9LOW => {
+            //     self.mmu.borrow_mut().set_tlb_low_16(9, val as u32);
+            // }
+            // IOMapAddr::MMU_TLB10HIGH => {
+            //     self.mmu.borrow_mut().set_tlb_high_8(10, val as u32);
+            // }
+            // IOMapAddr::MMU_TLB10LOW => {
+            //     self.mmu.borrow_mut().set_tlb_low_16(10, val as u32);
+            // }
+            // IOMapAddr::MMU_TLB11HIGH => {
+            //     self.mmu.borrow_mut().set_tlb_high_8(11, val as u32);
+            // }
+            // IOMapAddr::MMU_TLB11LOW => {
+            //     self.mmu.borrow_mut().set_tlb_low_16(11, val as u32);
+            // }
+            // IOMapAddr::MMU_TLB12HIGH => {
+            //     self.mmu.borrow_mut().set_tlb_high_8(12, val as u32);
+            // }
+            // IOMapAddr::MMU_TLB12LOW => {
+            //     self.mmu.borrow_mut().set_tlb_low_16(12, val as u32);
+            // }
+            // IOMapAddr::MMU_TLB13HIGH => {
+            //     self.mmu.borrow_mut().set_tlb_high_8(13, val as u32);
+            // }
+            // IOMapAddr::MMU_TLB13LOW => {
+            //     self.mmu.borrow_mut().set_tlb_low_16(13, val as u32);
+            // }
+            // IOMapAddr::MMU_TLB14HIGH => {
+            //     self.mmu.borrow_mut().set_tlb_high_8(14, val as u32);
+            // }
+            // IOMapAddr::MMU_TLB14LOW => {
+            //     self.mmu.borrow_mut().set_tlb_low_16(14, val as u32);
+            // }
+            // IOMapAddr::MMU_TLB15HIGH => {
+            //     self.mmu.borrow_mut().set_tlb_high_8(15, val as u32);
+            // }
+            // IOMapAddr::MMU_TLB15LOW => {
+            //     self.mmu.borrow_mut().set_tlb_low_16(15, val as u32);
+            // }
             IOMapAddr::MMU_00_IPLBANK => {
                 if val & 0x0001 != 0 {
                     self.mmu.borrow_mut().detach_ipl();

@@ -90,7 +90,7 @@ impl Cpu {
         self.psw.borrow_mut().set_priv_flag(true);
         self.psw
             .borrow_mut()
-            .set_flag((tmp & !(flags::ENABLE_INTR)) | flags::PRIV);
+            .set_flag((tmp & !flags::ENABLE_INTR) | flags::PRIV);
         self.push_val(self.psw.borrow().get_pc())?;
         self.push_val(tmp)?;
         let addr = self
@@ -182,6 +182,7 @@ impl Cpu {
     fn instr_ld(&self, inst: Instruction) -> Result<(), TlbError> {
         let data = self.load_operand(inst.addr_mode.clone(), inst.rx, inst.ea)?;
         self.write_reg(inst.rd, data);
+
         self.psw.borrow_mut().next_pc();
         if self.is_two_word_instruction(inst.addr_mode) {
             self.psw.borrow_mut().next_pc();
@@ -200,7 +201,7 @@ impl Cpu {
                 return Err(e);
             };
         } else if let Err(e) = self.memory.borrow_mut().write16(inst.ea, data) {
-                return Err(e);
+            return Err(e);
         }
 
         self.psw.borrow_mut().next_pc();
@@ -219,6 +220,7 @@ impl Cpu {
         if inst.opcode != opcode::CMP {
             self.write_reg(inst.rd, (ans & 0xffff) as u16);
         }
+
         self.psw.borrow_mut().next_pc();
         if self.is_two_word_instruction(inst.addr_mode) {
             self.psw.borrow_mut().next_pc();
@@ -323,6 +325,7 @@ impl Cpu {
             }
             _ => {}
         }
+
         self.psw.borrow_mut().next_pc();
         self.psw.borrow_mut().next_pc();
     }
@@ -339,6 +342,7 @@ impl Cpu {
         } else if inst.addr_mode == addr_mode::REG_TO_REG {
             self.write_reg(inst.rd, self.pop_val()?);
         }
+
         self.psw.borrow_mut().next_pc();
         Ok(())
     }
@@ -370,6 +374,7 @@ impl Cpu {
                 .borrow_mut()
                 .interrupt(Interrupt::EXCP_PRIV_ERROR);
         }
+
         self.psw.borrow_mut().next_pc();
         if self.is_two_word_instruction(inst.addr_mode) {
             self.psw.borrow_mut().next_pc();
@@ -387,6 +392,7 @@ impl Cpu {
                 .borrow_mut()
                 .interrupt(Interrupt::EXCP_PRIV_ERROR);
         }
+
         self.psw.borrow_mut().next_pc();
         if self.is_two_word_instruction(inst.addr_mode) {
             self.psw.borrow_mut().next_pc();
@@ -395,6 +401,7 @@ impl Cpu {
 
     fn instr_svc(&self, _inst: Instruction) {
         self.intr_host.borrow_mut().interrupt(Interrupt::EXCP_SVC);
+
         self.psw.borrow_mut().next_pc();
     }
 
@@ -406,6 +413,7 @@ impl Cpu {
                 .borrow_mut()
                 .interrupt(Interrupt::EXCP_PRIV_ERROR);
         }
+
         self.psw.borrow_mut().next_pc();
     }
 
@@ -427,7 +435,8 @@ impl Cpu {
             if v1_msb == v2_msb && ans_msb != v1_msb {
                 flags |= flags::OVERFLOW;
             }
-        } else if (op == opcode::SUB || op == opcode::CMP) && v1_msb != v2_msb && ans_msb != v1_msb {
+        } else if (op == opcode::SUB || op == opcode::CMP) && v1_msb != v2_msb && ans_msb != v1_msb
+        {
             flags |= flags::OVERFLOW;
         }
 
@@ -467,7 +476,6 @@ impl Cpu {
     }
 
     fn is_two_word_instruction(&self, addr_mode: u8) -> bool {
-        // return AddrMode::DIRECT <= addr_mode && addr_mode <= AddrMode::IMMEDIATE;
         return addr_mode == addr_mode::DIRECT
             || addr_mode == addr_mode::INDEXED
             || addr_mode == addr_mode::IMMEDIATE;
@@ -490,10 +498,10 @@ impl Cpu {
     }
 
     fn push_val(&self, val: u16) -> Result<(), TlbError> {
-        self.memory
-            .borrow_mut()
-            .write16(self.read_reg(RegNum::SP as u8) - 2, val)?;
-        self.write_reg(RegNum::SP as u8, self.read_reg(RegNum::SP as u8) - 2);
+            self.memory
+                .borrow_mut()
+                .write16(self.read_reg(RegNum::SP as u8).wrapping_sub(2), val)?;
+            self.write_reg(RegNum::SP as u8, self.read_reg(RegNum::SP as u8).wrapping_sub(2));
         Ok(())
     }
 
@@ -502,7 +510,7 @@ impl Cpu {
             .memory
             .borrow_mut()
             .read16(self.read_reg(RegNum::SP as u8))?;
-        self.write_reg(RegNum::SP as u8, self.read_reg(RegNum::SP as u8) + 2);
+        self.write_reg(RegNum::SP as u8, self.read_reg(RegNum::SP as u8).wrapping_add(2));
         Ok(val)
     }
 

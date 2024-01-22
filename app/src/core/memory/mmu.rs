@@ -140,14 +140,15 @@ impl Mmu {
         return Ok(self.memory.borrow().fetch(pc));
     }
 
-    fn v_addr_to_entry(&mut self, v_addr: u16) -> Result<TlbEntry, TlbError> {
+    fn v_addr_to_entry(&mut self, v_addr: u16) -> Result<&mut TlbEntry, TlbError> {
         let page = ((v_addr & 0xff00) >> 8) as u8;
-        let entry_num = self.search_tlb_num(page);
-        if entry_num.is_none() {
-            self.report_tlb_miss_error(page);
-            return Err(TlbError::TlbMiss);
+        return match self.search_tlb_num(page) {
+            Some(num) => Ok(self.tlbs.get_mut(num as usize).unwrap().into()),
+            None => {
+                self.report_tlb_miss_error(page);
+                Err(TlbError::TlbMiss)
+            }
         }
-        Ok(self.tlbs[entry_num.unwrap() as usize])
     }
 
     fn search_tlb_num(&self, page: u8) -> Option<u8> {
@@ -190,11 +191,11 @@ impl Mmu {
         self.tlbs[entry_num as usize].get_low_16()
     }
 
-    pub fn set_tlb_high_8(&mut self, entry_num: u8, val: u32) {
-        self.tlbs[entry_num as usize].set_high_8(val);
+    pub fn set_tlb_high_8(&mut self, entry_num: u8, val: u16) {
+        self.tlbs[entry_num as usize].set_high_8(val as u8);
     }
 
-    pub fn set_tlb_low_16(&mut self, entry_num: u8, val: u32) {
+    pub fn set_tlb_low_16(&mut self, entry_num: u8, val: u16) {
         self.tlbs[entry_num as usize].set_low_16(val);
     }
 
