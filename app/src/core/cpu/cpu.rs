@@ -498,10 +498,13 @@ impl Cpu {
     }
 
     fn push_val(&self, val: u16) -> Result<(), TlbError> {
-            self.memory
-                .borrow_mut()
-                .write16(self.read_reg(RegNum::SP as u8).wrapping_sub(2), val)?;
-            self.write_reg(RegNum::SP as u8, self.read_reg(RegNum::SP as u8).wrapping_sub(2));
+        self.memory
+            .borrow_mut()
+            .write16(self.read_reg(RegNum::SP as u8).wrapping_sub(2), val)?;
+        self.write_reg(
+            RegNum::SP as u8,
+            self.read_reg(RegNum::SP as u8).wrapping_sub(2),
+        );
         Ok(())
     }
 
@@ -510,7 +513,10 @@ impl Cpu {
             .memory
             .borrow_mut()
             .read16(self.read_reg(RegNum::SP as u8))?;
-        self.write_reg(RegNum::SP as u8, self.read_reg(RegNum::SP as u8).wrapping_add(2));
+        self.write_reg(
+            RegNum::SP as u8,
+            self.read_reg(RegNum::SP as u8).wrapping_add(2),
+        );
         Ok(val)
     }
 

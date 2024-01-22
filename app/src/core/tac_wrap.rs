@@ -8,7 +8,7 @@ use crate::core::tac::{Tac, TacProps};
 use std::cell::RefCell;
 use std::rc::Rc;
 use web_sys::KeyboardEvent;
-use yew::{html, Component, Context, ContextProvider, Html, NodeRef, Callback};
+use yew::{html, Callback, Component, Context, ContextProvider, Html, NodeRef};
 
 pub struct TacWrap {
     memory: Rc<RefCell<Memory>>,

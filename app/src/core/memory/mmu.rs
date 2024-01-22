@@ -148,7 +148,7 @@ impl Mmu {
                 self.report_tlb_miss_error(page);
                 Err(TlbError::TlbMiss)
             }
-        }
+        };
     }
 
     fn search_tlb_num(&self, page: u8) -> Option<u8> {

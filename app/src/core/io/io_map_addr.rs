@@ -69,7 +69,6 @@ pub enum IOMapAddr {
     // MMU_TLB14LOW = 0x9a,
     // MMU_TLB15HIGH = 0x9c,
     // MMU_TLB15LOW = 0x9e,
-
     MMU_00_IPLBANK = 0xa0,
     MMU_ERRORADDR_MMUON = 0xa2,
     MMU_ERRORCAUSE_00 = 0xa4,
