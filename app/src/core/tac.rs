@@ -20,7 +20,8 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use wasm_bindgen::closure::Closure;
 use wasm_bindgen::prelude::wasm_bindgen;
-use yew::{NodeRef, Properties};
+use web_sys::KeyboardEvent;
+use yew::{NodeRef, Properties, TargetCast};
 
 #[wasm_bindgen(js_namespace = Date)]
 extern "C" {
@@ -194,6 +195,10 @@ impl Tac {
             .set_event(TacEvent(ITacEvent::reset_btn_event));
         self.components.borrow_mut().buttons[ButtonName::StopBtn]
             .set_event(TacEvent(ITacEvent::stop_btn_event));
+    }
+
+    pub fn terminal_on_keydown(&self, e: KeyboardEvent) {
+        self.terminal_io.borrow_mut().input_key_down(e);
     }
 
     pub fn is_halt(&self) -> bool {

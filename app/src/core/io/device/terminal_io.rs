@@ -38,7 +38,7 @@ impl IIOSerial for TerminalIO {
     fn send(&mut self, val: u8) {
         let terminal = self.terminal.cast::<HtmlTextAreaElement>().unwrap();
         if val == 0x08 {
-            terminal.set_inner_text(&(&terminal.value()[..terminal.value().len() - 1]));
+            terminal.set_value(&(&terminal.value()[..terminal.value().len() - 1]));
         } else {
             let ch = std::char::from_u32(val as u32)
                 .unwrap()
@@ -84,7 +84,7 @@ impl IIOSerial for TerminalIO {
 }
 
 impl TerminalIO {
-    fn input_key_down(&mut self, e: yew::KeyboardEvent) {
+    pub fn input_key_down(&mut self, e: yew::KeyboardEvent) {
         self.buf = self.key_to_ascii(e.key());
         self.empty_flag = false;
         if self.recivable_intr_flag {
@@ -97,7 +97,7 @@ impl TerminalIO {
     fn key_to_ascii(&self, key: String) -> u8 {
         if key.len() != 1 {
             return match key.as_str() {
-                "BackSpace" => 0x08,
+                "Backspace" => 0x08,
                 "Tab" => 0x09,
                 "Enter" => 0x0d,
                 "Escape" => 0x1b,

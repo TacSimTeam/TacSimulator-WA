@@ -7,7 +7,8 @@ use crate::core::memory::memory::Memory;
 use crate::core::tac::{Tac, TacProps};
 use std::cell::RefCell;
 use std::rc::Rc;
-use yew::{html, Component, Context, ContextProvider, Html, NodeRef};
+use web_sys::KeyboardEvent;
+use yew::{html, Component, Context, ContextProvider, Html, NodeRef, Callback};
 
 pub struct TacWrap {
     memory: Rc<RefCell<Memory>>,
@@ -68,6 +69,10 @@ impl Component for TacWrap {
 
     fn view(&self, _ctx: &Context<Self>) -> Html {
         let tac = &self.tac;
+        let tac_clone = Rc::clone(&tac);
+        let on_keydown = Callback::from(move |e: KeyboardEvent| {
+            tac_clone.borrow().terminal_on_keydown(e);
+        });
         return html! {
             <>
                 <ContextProvider<Rc<RefCell<Tac>>> context={Rc::clone(tac)} >
@@ -77,7 +82,7 @@ impl Component for TacWrap {
                             <input ref={&self.input.clone()} type="checkbox"/>
                         </div>
                         <div class="terminal-area">
-                            <textarea ref={&self.terminal.clone()}></textarea>
+                            <textarea ref={&self.terminal.clone()} readonly=true onkeydown={on_keydown}></textarea>
                         </div>
                     </section>
                 </ContextProvider<Rc<RefCell<Tac>>>>
