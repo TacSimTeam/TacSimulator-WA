@@ -67,3 +67,11 @@ Temporary Items
 
 dist/
 
+*.s
+*.lst
+*.bin
+*.o
+*.hex
+*.sym
+*.map
+
