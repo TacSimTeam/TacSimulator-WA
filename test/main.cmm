@@ -1,0 +1,90 @@
+#include "crt0.hmm"
+
+void putSIO(char c){
+  while((in(0x0a) & 0x80) == 0)
+    ;
+  out(0x08, ord(c));
+}
+
+public void putch(char c) {
+  if (c == '\n') putSIO('\r');
+  putSIO(c);
+}
+
+public void putstr(char[] str) {
+  for (int i = 0;str[i] != '\0';i=i+1)
+    putch(str[i]);
+}
+
+int lfsr = 3;
+public int rand() {
+  lfsr = ((lfsr >> 1) & 0x7fff) ^ (-(lfsr & 1) & 0xb400);
+  return lfsr;
+}
+
+#define ARRAY_SIZE 10000
+
+int[] x = array(ARRAY_SIZE);
+
+public void init() {
+  for (int i = 0;i < ARRAY_SIZE;i = i + 1) {
+    x[i] = rand();
+  }
+}
+
+public void print() {
+  for (int i = 0;i < ARRAY_SIZE;i = i + 1) {
+    putch(chr(0x30 + x[i]));
+    putch(' ');
+  }
+  putch('\n');
+}
+
+public void swap(int i, int j) {
+  int tmp;
+
+  tmp = x[i];
+  x[i] = x[j];
+  x[j] = tmp;
+}
+
+public int partition(int left, int right) {
+  int i, j, pivot;
+  i = left;
+  j = right + 1;
+  pivot = left;
+
+  do {
+    do { i = i + 1; } while (x[i] < x[pivot]);
+    do { j = j - 1; } while (x[pivot] < x[j]);
+    if (i < j) swap(i, j);
+  } while(i < j);
+
+  swap(pivot, j);
+  
+  return j;
+}
+
+public void sort(int left, int right) {
+  int pivot;
+
+  if (left < right) {
+    pivot = partition(left, right);
+    sort(left, pivot - 1);
+    sort(pivot + 1, right);
+  }
+}
+
+public void main() {
+  putch('s');
+
+  for (int i = 0;i < 10;i = i + 1) {
+    init();
+    putch(chr(0x30 + 1));
+    sort(0, ARRAY_SIZE);
+  }
+
+  putch('f');
+
+  while(true);
+}
