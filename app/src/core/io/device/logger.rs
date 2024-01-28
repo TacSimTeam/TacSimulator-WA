@@ -46,10 +46,10 @@ impl IIOSerial for Logger {
             let ch = std::char::from_u32(val as u32)
                 .unwrap()
                 .to_string()
-                .replace("\r", "");
+                .replace('\r', "");
             self.buf = self.buf.clone() + &ch;
             if ch.eq("\n") {
-                console::log!(&format!("{}", self.buf.as_str()));
+                console::log!(&format!("{}", self.buf.clone()));
                 self.buf = String::new();
             }
         }

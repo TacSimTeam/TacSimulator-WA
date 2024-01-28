@@ -70,7 +70,7 @@ impl Alu {
         if (operand & 0x8000) != 0 {
             return ((operand | !0xffff) as i32 >> (bit & 0x0f)) as u32;
         }
-        return operand >> (bit & 0x0f);
+        operand >> (bit & 0x0f)
     }
 
     fn shift_right_logical(&mut self, operand: u16, bit: u16) -> u32 {

@@ -144,10 +144,10 @@ impl Switch {
     }
 
     pub fn is_switch_clicked(&self, click_x: f64, click_y: f64) -> bool {
-        return self.pos_x <= click_x
+        self.pos_x <= click_x
             && click_x <= self.pos_x + SWITCH_BASE_WIDTH
             && self.pos_y <= click_y
-            && click_y <= self.pos_y + SWITCH_BASE_HEIGHT;
+            && click_y <= self.pos_y + SWITCH_BASE_HEIGHT
     }
 
     pub fn toggle_state(&mut self) {

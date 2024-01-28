@@ -44,7 +44,7 @@ impl Mmu {
     pub fn read8(&mut self, addr: u16) -> Result<u8, TlbError> {
         let mut addr = addr;
         if self.mmu_mode && !self.priv_sig.borrow().get_priv_flag() {
-            let mut entry = self.v_addr_to_entry(addr)?;
+            let entry = self.v_addr_to_entry(addr)?;
             if !entry.is_readable() {
                 self.report_mem_vio_error(addr);
                 return Ok(0u8);
@@ -61,7 +61,7 @@ impl Mmu {
             return Err(TlbError::ReadOnly);
         }
         if self.mmu_mode && !self.priv_sig.borrow().get_priv_flag() {
-            let mut entry = self.v_addr_to_entry(addr)?;
+            let entry = self.v_addr_to_entry(addr)?;
             if !entry.is_writable() {
                 self.report_mem_vio_error(addr);
                 return Ok(());
@@ -83,7 +83,7 @@ impl Mmu {
         }
 
         if self.mmu_mode && !self.priv_sig.borrow().get_priv_flag() {
-            let mut entry = self.v_addr_to_entry(addr)?;
+            let entry = self.v_addr_to_entry(addr)?;
             if !entry.is_readable() {
                 self.report_mem_vio_error(addr);
                 return Ok(0);
@@ -106,7 +106,7 @@ impl Mmu {
         }
 
         if self.mmu_mode & !self.priv_sig.borrow().get_priv_flag() {
-            let mut entry = self.v_addr_to_entry(addr)?;
+            let entry = self.v_addr_to_entry(addr)?;
 
             if !entry.is_writable() {
                 self.report_mem_vio_error(addr);
@@ -128,7 +128,7 @@ impl Mmu {
             return Ok(0);
         }
         if self.mmu_mode && !self.priv_sig.borrow().get_priv_flag() {
-            let mut entry = self.v_addr_to_entry(pc)?;
+            let entry = self.v_addr_to_entry(pc)?;
             if !entry.is_executable() {
                 self.report_mem_vio_error(pc);
                 return Ok(0);
@@ -143,7 +143,7 @@ impl Mmu {
     fn v_addr_to_entry(&mut self, v_addr: u16) -> Result<&mut TlbEntry, TlbError> {
         let page = ((v_addr & 0xff00) >> 8) as u8;
         return match self.search_tlb_num(page) {
-            Some(num) => Ok(self.tlbs.get_mut(num as usize).unwrap().into()),
+            Some(num) => Ok(self.tlbs.get_mut(num as usize).unwrap()),
             None => {
                 self.report_tlb_miss_error(page);
                 Err(TlbError::TlbMiss)

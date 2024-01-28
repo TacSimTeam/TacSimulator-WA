@@ -45,10 +45,10 @@ impl SdHostController {
         self.idle_flag = false;
         match self.read_sect(self.sec_addr()) {
             Ok(data) => {
-                for i in 0..SECTOR_SIZE {
+                for (i, d) in data.iter().enumerate().take(SECTOR_SIZE) {
                     self.memory
                         .borrow_mut()
-                        .write8(self.mem_addr + i as u16, data[i]);
+                        .write8(self.mem_addr + i as u16, *d);
                 }
                 self.idle_flag = true;
                 if self.intr_flag {
@@ -142,8 +142,8 @@ impl SdHostController {
         if self.buf.borrow().is_empty() {
             return Err(SdIoError::SdIsNotOpen);
         } else {
-            for i in 0..SECTOR_SIZE {
-                self.buf.borrow_mut()[sect_addr * SECTOR_SIZE + i] = data[i];
+            for (i, d) in data.iter().enumerate().take(SECTOR_SIZE) {
+                self.buf.borrow_mut()[sect_addr * SECTOR_SIZE + i] = *d;
             }
         }
         Ok(())

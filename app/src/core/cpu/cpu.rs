@@ -56,8 +56,8 @@ impl Cpu {
             || self.intr_host.borrow_mut().is_exception_occurred()
         {
             let intr_num = self.intr_host.borrow_mut().check_intr_num();
-            if intr_num.is_some() {
-                if let Err(_) = self.handle_interrupt(intr_num.unwrap()) {
+            if let Some(intr_num) = intr_num {
+                if self.handle_interrupt(intr_num).is_err() {
                     return None;
                 };
             }
@@ -70,16 +70,13 @@ impl Cpu {
             }
         };
         let mut inst = self.decode(inst_data);
-        inst.ea = match self.calc_effective_address(inst.addr_mode.clone(), inst.rx) {
+        inst.ea = match self.calc_effective_address(inst.addr_mode, inst.rx) {
             Ok(ea) => ea,
             Err(_) => {
                 return None;
             }
         };
-        // if !self.memory.borrow().is_ipl_mode() {
-        //     gloo::console::log!(&format!("inst {:?}\nPC {:02X}\nSP {:02X}", inst, self.psw.borrow().get_pc(), self.register.borrow().read(13)));
-        // }
-        if let Err(_) = self.execute_instruction(inst.clone()) {
+        if self.execute_instruction(inst.clone()).is_err() {
             return None;
         };
         Some(inst)
@@ -117,7 +114,7 @@ impl Cpu {
             .memory
             .borrow_mut()
             .read16(self.psw.borrow().get_pc() + 2)?;
-        return Ok(match addr_mode {
+        Ok(match addr_mode {
             addr_mode::DIRECT => data,
             addr_mode::INDEXED => data + self.read_reg(rx),
             addr_mode::FP_RELATIVE => {
@@ -125,14 +122,14 @@ impl Cpu {
             }
             addr_mode::REG_INDIRECT | addr_mode::BYTE_REG_INDIRECT => self.read_reg(rx),
             _ => 0u16,
-        });
+        })
     }
 
     fn execute_instruction(&mut self, inst: Instruction) -> Result<(), TlbError> {
         match inst.opcode {
             opcode::NOP => {
                 self.psw.borrow_mut().next_pc();
-                return Ok(());
+                Ok(())
             }
             opcode::LD => self.instr_ld(inst),
             opcode::ST => self.instr_st(inst),
@@ -152,35 +149,33 @@ impl Cpu {
             | opcode::SHRL => self.instr_calc(inst),
             opcode::JMP => {
                 self.instr_jmp(inst);
-                return Ok(());
+                Ok(())
             }
             opcode::CALL => self.instr_call(inst),
             opcode::IN => {
                 self.instr_in(inst);
-                return Ok(());
+                Ok(())
             }
             opcode::OUT => {
                 self.instr_out(inst);
-                return Ok(());
+                Ok(())
             }
             opcode::PUSH_POP => self.instr_push_pop(inst),
             opcode::RET_RETI => self.instr_return(inst),
             opcode::SVC => {
                 self.instr_svc(inst);
-                return Ok(());
+                Ok(())
             }
             opcode::HALT => {
                 self.instr_halt(inst);
-                return Ok(());
+                Ok(())
             }
-            _ => {
-                return Ok(());
-            }
+            _ => Ok(()),
         }
     }
 
     fn instr_ld(&self, inst: Instruction) -> Result<(), TlbError> {
-        let data = self.load_operand(inst.addr_mode.clone(), inst.rx, inst.ea)?;
+        let data = self.load_operand(inst.addr_mode, inst.rx, inst.ea)?;
         self.write_reg(inst.rd, data);
 
         self.psw.borrow_mut().next_pc();
@@ -193,13 +188,9 @@ impl Cpu {
     fn instr_st(&self, inst: Instruction) -> Result<(), TlbError> {
         let data = self.read_reg(inst.rd);
         if inst.addr_mode == addr_mode::BYTE_REG_INDIRECT {
-            if let Err(e) = self
-                .memory
+            self.memory
                 .borrow_mut()
-                .write8(inst.ea, (0x00ff & data) as u8)
-            {
-                return Err(e);
-            };
+                .write8(inst.ea, (0x00ff & data) as u8)?;
         } else if let Err(e) = self.memory.borrow_mut().write16(inst.ea, data) {
             return Err(e);
         }
@@ -440,11 +431,11 @@ impl Cpu {
             flags |= flags::OVERFLOW;
         }
 
-        if opcode::ADD <= op && op <= opcode::CMP {
+        if (opcode::ADD..=opcode::CMP).contains(&op) {
             if (ans & 0x10000) != 0 {
                 flags |= flags::CARRY;
             }
-        } else if opcode::SHLA <= op && op <= opcode::SHRL && v2 == 1 && (ans & 0x10000) != 0 {
+        } else if (opcode::SHLA..=opcode::SHRL).contains(&op) && v2 == 1 && (ans & 0x10000) != 0 {
             flags |= flags::CARRY;
         }
 
@@ -476,9 +467,9 @@ impl Cpu {
     }
 
     fn is_two_word_instruction(&self, addr_mode: u8) -> bool {
-        return addr_mode == addr_mode::DIRECT
+        addr_mode == addr_mode::DIRECT
             || addr_mode == addr_mode::INDEXED
-            || addr_mode == addr_mode::IMMEDIATE;
+            || addr_mode == addr_mode::IMMEDIATE
     }
 
     fn write_reg(&self, reg_num: u8, val: u16) {

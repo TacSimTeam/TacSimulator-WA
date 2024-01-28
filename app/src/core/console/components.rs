@@ -171,7 +171,7 @@ impl Components {
         let mut state = 0;
         for (i, s) in self.switches.iter().enumerate() {
             if s.get_state() && i < 8 {
-                state = state | (1 << i);
+                state |= 1 << i;
             }
         }
         state

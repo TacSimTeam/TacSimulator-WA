@@ -89,7 +89,7 @@ impl Console {
                 .dyn_into::<CanvasRenderingContext2d>()
                 .unwrap();
             canvas_ctx
-                .draw_image_with_html_image_element(&self.image.as_ref().unwrap(), 0.0, 0.0)
+                .draw_image_with_html_image_element(self.image.as_ref().unwrap(), 0.0, 0.0)
                 .unwrap();
         }
         self.components.borrow().draw();
@@ -116,7 +116,7 @@ impl Console {
     fn update_led(&mut self) {
         let mut val = self.read_reg();
         if self.state.borrow().rot_current == 17 {
-            val = val & 0xfffe;
+            val &= 0xfffe;
         }
         self.set_led_lamps(val);
     }
@@ -124,7 +124,7 @@ impl Console {
     fn read_reg(&self) -> u16 {
         match self.state.borrow().rot_current {
             14u8 => self.state.borrow().psw.borrow().get_pc(),
-            15u8 => self.state.borrow().psw.borrow().get_flag().into(),
+            15u8 => self.state.borrow().psw.borrow().get_flag(),
             16u8 => self.read_mem_data(),
             17u8 => self.state.borrow().mem_addr,
             _ => self
