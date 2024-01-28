@@ -84,7 +84,7 @@ public void main() {
     sort(0, ARRAY_SIZE);
   }
 
-  putch('f');
+  putch(';');
 
   while(true);
 }
