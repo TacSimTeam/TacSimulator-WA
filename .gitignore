@@ -75,3 +75,4 @@ dist/
 *.sym
 *.map
 
+a.out
