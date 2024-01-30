@@ -12,8 +12,21 @@ pub struct Dmg {
 }
 
 impl Dmg {
+    pub fn new() -> Self {
+        Self {
+            name: "default".to_string(),
+            data: vec![]
+        }
+    }
     pub fn get_data(&self) -> Vec<u8> {
         self.data.clone()
+    }
+    pub fn get_name(&self) -> String {
+        self.name.clone()
+    }
+
+    pub fn set_data(&mut self, data: Vec<u8>) {
+        self.data = data;
     }
 }
 
@@ -66,5 +79,22 @@ pub async fn fetch_and_convert_into_vector(url: String) -> Result<Dmg, FetchErro
     match reqwest::get(url).await {
         Ok(res) => Ok(res.json::<Dmg>().await.unwrap()),
         Err(_) => Err(FetchError::FetchError),
+    }
+}
+
+pub async fn update_dmg(name: String, data: Vec<u8>) -> Result<(), FetchError> {
+    let dmg = Dmg {
+        name,
+        data
+    };
+    let client = reqwest::Client::new();
+    let res = client.post(BASE_URL.to_string() + "dmg/update")
+        .json(&dmg)
+        .send()
+        .await?;
+    if res.status() == StatusCode::OK {
+        Ok(())
+    } else {
+        Err(FetchError::FetchError)
     }
 }
