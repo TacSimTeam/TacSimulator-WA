@@ -91,7 +91,8 @@ pub async fn update_dmg(name: String, data: Vec<u8>) -> Result<(), FetchError> {
     let res = client.post(BASE_URL.to_string() + "dmg/update")
         .json(&dmg)
         .send()
-        .await?;
+        .await
+        .unwrap();
     if res.status() == StatusCode::OK {
         Ok(())
     } else {
