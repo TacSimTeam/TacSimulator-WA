@@ -1,10 +1,10 @@
-use std::fs::File;
 use crate::consts::{BASE_PATH, TEMPLATE_DMG_PATH};
 use crate::entities::disk_image::Dmg;
 use anyhow::Result;
 use axum::extract::Path;
 use axum::response::IntoResponse;
 use axum::Json;
+use std::fs::File;
 use std::io::{Read, Write};
 
 fn get_dmg_data(path: String) -> Dmg {
@@ -22,7 +22,11 @@ pub async fn get_dmg(Path(path): Path<String>) -> impl IntoResponse {
 fn update_dmg_data(dmg: Dmg) -> Result<()> {
     let dmg_path = BASE_PATH.to_owned() + &*dmg.get_name() + ".dmg";
     std::fs::remove_file(dmg_path.clone())?;
-    std::fs::copy(&format!("{}template.dmg", BASE_PATH), &format!("{}{}.dmg", BASE_PATH, dmg.get_name())).unwrap();
+    std::fs::copy(
+        &format!("{}template.dmg", BASE_PATH),
+        &format!("{}{}.dmg", BASE_PATH, dmg.get_name()),
+    )
+    .unwrap();
     let mut fd = File::create(dmg_path.clone()).unwrap();
     fd.write_all(dmg.get_data()).unwrap();
     Ok(())
