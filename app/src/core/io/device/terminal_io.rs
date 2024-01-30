@@ -38,12 +38,12 @@ impl IIOSerial for TerminalIO {
     fn send(&mut self, val: u8) {
         let terminal = self.terminal.cast::<HtmlTextAreaElement>().unwrap();
         if val == 0x08 {
-            terminal.set_value(&(&terminal.value()[..terminal.value().len() - 1]));
+            terminal.set_value(&terminal.value()[..terminal.value().len() - 1]);
         } else {
             let ch = std::char::from_u32(val as u32)
                 .unwrap()
                 .to_string()
-                .replace("\r", "");
+                .replace('\r', "");
             terminal.set_value(&(terminal.value() + &ch));
             if ch.eq("\n") {
                 terminal.set_scroll_top(terminal.scroll_height());

@@ -73,7 +73,7 @@ impl Component for TacWrap {
         let on_keydown = Callback::from(move |e: KeyboardEvent| {
             tac_clone.borrow().terminal_on_keydown(e);
         });
-        return html! {
+        html! {
             <>
                 <ContextProvider<Rc<RefCell<Tac>>> context={Rc::clone(tac)} >
                     <section class="layout">
@@ -87,6 +87,6 @@ impl Component for TacWrap {
                     </section>
                 </ContextProvider<Rc<RefCell<Tac>>>>
             </>
-        };
+        }
     }
 }

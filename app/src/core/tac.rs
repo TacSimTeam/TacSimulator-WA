@@ -21,7 +21,7 @@ use std::rc::Rc;
 use wasm_bindgen::closure::Closure;
 use wasm_bindgen::prelude::wasm_bindgen;
 use web_sys::KeyboardEvent;
-use yew::{NodeRef, Properties, TargetCast};
+use yew::{NodeRef, Properties};
 
 #[wasm_bindgen(js_namespace = Date)]
 extern "C" {

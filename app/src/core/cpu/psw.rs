@@ -6,6 +6,12 @@ pub struct Psw {
     flag: u16,
 }
 
+impl Default for Psw {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Psw {
     pub fn new() -> Self {
         Self {
@@ -55,9 +61,9 @@ impl Psw {
 
     pub fn set_priv_flag(&mut self, is_priv: bool) {
         if is_priv {
-            self.flag = self.flag | flags::PRIV;
+            self.flag |= flags::PRIV;
         } else {
-            self.flag = self.flag & (!(flags::PRIV) & 0xff);
+            self.flag &= !flags::PRIV & 0xff;
         }
     }
 

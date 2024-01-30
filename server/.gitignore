@@ -1,3 +1,10 @@
 /target
 /assets/user1.dmg
 .env
+
+*.dmg
+!/assets/demo.dmg
+!/assets/TacOS-vm-8m.dmg
+!/template.dmg
+!/assets/Test-8queen-8m.dmg
+!/assets/Test-SioEcho-8m.dmg

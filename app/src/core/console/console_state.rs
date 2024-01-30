@@ -50,7 +50,7 @@ impl IConsoleStateAction for ConsoleState {
     }
 
     fn seta_btn_event(&mut self, val: u8) {
-        self.mem_addr = (self.mem_addr << 8) | (val & 0xff) as u16;
+        self.mem_addr = (self.mem_addr << 8) | val as u16;
     }
 
     fn inca_btn_event(&mut self, _val: u8) {
@@ -80,19 +80,17 @@ impl IConsoleState for ConsoleState {
             14u8 => self
                 .psw
                 .borrow_mut()
-                .jump(((self.psw.borrow().get_pc() & 0x00ff) << 8) | (val & 0x00ff) as u16),
-            15u8 => self.psw.borrow_mut().set_flag(
-                (((self.psw.borrow().get_flag() & 0x00ff) as u16) << 8) | ((val & 0x00ff) as u16),
-            ),
-            16u8 | 17u8 => {
-                self.write_mem_data(((self.get_mem_addr() & 0x00ff) << 8) | (val & 0x00ff) as u16)
-            }
+                .jump(((self.psw.borrow().get_pc() & 0x00ff) << 8) | val as u16),
+            15u8 => self
+                .psw
+                .borrow_mut()
+                .set_flag(((self.psw.borrow().get_flag() & 0x00ff) << 8) | (val as u16)),
+            16u8 | 17u8 => self.write_mem_data(((self.get_mem_addr() & 0x00ff) << 8) | val as u16),
             _ => {
                 let reg_val = self.read_reg();
-                self.register.borrow_mut().write(
-                    self.rot_current,
-                    (reg_val & 0x00ff) << 8 | (val & 0x00ff) as u16,
-                )
+                self.register
+                    .borrow_mut()
+                    .write(self.rot_current, (reg_val & 0x00ff) << 8 | val as u16)
             }
         }
     }
@@ -118,7 +116,7 @@ impl IConsoleState for ConsoleState {
     fn read_reg(&self) -> u16 {
         match self.rot_current {
             14u8 => self.psw.borrow().get_pc(),
-            15u8 => self.psw.borrow().get_flag().into(),
+            15u8 => self.psw.borrow().get_flag(),
             16u8 => self.read_mem_data(),
             17u8 => self.mem_addr,
             _ => self.register.borrow().read(self.rot_current),

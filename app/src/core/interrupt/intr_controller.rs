@@ -38,6 +38,6 @@ impl IntrController {
     }
 
     pub fn is_exception_occurred(&self) -> bool {
-        self.intr_flags[10..15].iter().any(|i| *i != false)
+        self.intr_flags[10..15].iter().any(|i| *i)
     }
 }
