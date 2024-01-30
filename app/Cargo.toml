@@ -18,7 +18,7 @@ trunk = "0.18.4"
 wasm-bindgen = "0.2.87"
 wasm-bindgen-futures = "0.4.38"
 wasm-logger = "0.2.0"
-web-sys = { version = "0.3.64", features = ["HtmlInputElement", "Document", "console", "HtmlImageElement", "CanvasRenderingContext2d", "HtmlCanvasElement"] }
+web-sys = { version = "0.3.64", features = ["HtmlInputElement", "Document", "console", "HtmlImageElement", "CanvasRenderingContext2d", "HtmlCanvasElement", "DomRect"] }
 yew = { version = "0.21.0", features = ["csr"] }
 yew-hooks = "0.3.0"
 
