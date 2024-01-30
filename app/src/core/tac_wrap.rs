@@ -80,16 +80,25 @@ impl Component for TacWrap {
         html! {
             <>
                 <ContextProvider<Rc<RefCell<Tac>>> context={Rc::clone(tac)} >
-                    <section class="layout">
-                        <div class="console-area">
+                    <div class="console_area">
+                        <div>
                             <Console state={Rc::clone(&self.console_state)} component={Rc::clone(&self.components)} />
-                            <input ref={&self.input.clone()} type="checkbox" id={"logger_switch"}/>
-                            <textarea ref={&self.logger.clone()} readonly=true id={"logger"}></textarea>
                         </div>
-                        <div class="terminal-area">
-                            <textarea ref={&self.terminal.clone()} readonly=true onkeydown={on_keydown} id={"terminal"}></textarea>
+                    </div>
+                    <div class={"logger_area"}>
+                        <div class={"textarea_header logger_header"}>{"Logger"}</div>
+                        <textarea ref={&self.logger.clone()} readonly=true class={"logger"}></textarea>
+                    </div>
+                    <div class={"logger_switch_area"}>
+                        <div class={"logger_switch_wrap"}>
+                            <input ref={&self.input.clone()} type="checkbox" class={"logger_switch"} name={"logger_switch"}/>
+                            <label for={"logger_switch"}></label>
                         </div>
-                    </section>
+                    </div>
+                    <div class="terminal_area">
+                        <div class={"textarea_header"}>{"Terminal"}</div>
+                        <textarea ref={&self.terminal.clone()} readonly=true onkeydown={on_keydown} class={"terminal"}></textarea>
+                    </div>
                 </ContextProvider<Rc<RefCell<Tac>>>>
             </>
         }

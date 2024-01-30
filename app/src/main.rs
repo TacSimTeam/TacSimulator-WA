@@ -75,7 +75,8 @@ fn simulator() -> Html {
         })
     };
     return html! {
-        <>
+        <main class={"layout"}>
+
             {
                 if dmg.loading {
                     html! {
@@ -93,7 +94,6 @@ fn simulator() -> Html {
                     for (i, data) in data.get_data().iter().enumerate() {
                         dmg_data.borrow_mut().push(*data);
                     }
-                    gloo::console::log!(&format!("data {} dmg {}", dmg_data.borrow().len(), data.get_data().len()));
                     html! {
                         <>
                             <Tac dmg={Rc::clone(&dmg_data)}/>
@@ -101,7 +101,7 @@ fn simulator() -> Html {
                     }
                 } else {
                     html! {
-                        <p>{"Loading ..."}</p>
+                        <></>
                     }
                 }
             }
@@ -119,26 +119,28 @@ fn simulator() -> Html {
         {
             if !(*is_login).clone() {
                 html!{
-                    <form>
-                        <div>
+                    <form class={"login_form"}>
+                        <div class={"form_el_wrap"}>
                             <label for={"user_name"}>{"ユーザー名"}</label>
-                            <input type={"text"} name={"user_name"} id={"user_name"} required={true} oninput={user_name_on_input} value={(*user_name).clone()} />
+                            <input type={"text"} name={"user_name"} id={"user_name"} required={true} oninput={user_name_on_input} value={(*user_name).clone()} placeholder={"UserName"} />
                         </div>
-                        <div>
+                        <div class={"form_el_wrap"}>
                             <label for={"user_password"}>{"パスワード"}</label>
-                            <input type={"text"} name={"user_password"} id={"user_password"} required={true} oninput={password_on_input} value={(*password).clone()}/>
+                            <input type={"password"} name={"user_password"} id={"user_password"} required={true} oninput={password_on_input} value={(*password).clone()} placeholder={"PASSWORD"}/>
                         </div>
 
-                        <button onclick={get_dmg} disabled={dmg.loading}>{"ログイン"}</button>
+                        <button onclick={get_dmg} disabled={dmg.loading} class={"login_btn"}>{"ログイン"}</button>
                     </form>
                 }
             } else {
                 html! {
-                    <button onclick={save_btn_onclick}>{"保存"}</button>
+                    <div class={"save_btn_area"}>
+                        <button onclick={save_btn_onclick} class={"save_btn"}>{"保存"}</button>
+                    </div>
                 }
             }
         }
-        </>
+        </main>
     };
 }
 fn main() {
