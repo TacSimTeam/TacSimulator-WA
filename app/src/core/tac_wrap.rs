@@ -19,6 +19,7 @@ pub struct TacWrap {
     tac: Rc<RefCell<Tac>>,
     terminal: NodeRef,
     input: NodeRef,
+    logger: NodeRef,
 }
 
 impl TacWrap {
@@ -35,6 +36,7 @@ impl TacWrap {
         let components = Rc::new(RefCell::new(Components::new()));
         let terminal = NodeRef::default();
         let input = NodeRef::default();
+        let logger = NodeRef::default();
         let tac = Rc::new(RefCell::new(Tac::new(
             dmg,
             Rc::clone(&memory),
@@ -44,6 +46,7 @@ impl TacWrap {
             Rc::clone(&components),
             terminal.clone(),
             input.clone(),
+            logger.clone(),
         )));
         Self {
             memory,
@@ -54,6 +57,7 @@ impl TacWrap {
             tac,
             terminal,
             input,
+            logger,
         }
     }
 }
@@ -76,15 +80,25 @@ impl Component for TacWrap {
         html! {
             <>
                 <ContextProvider<Rc<RefCell<Tac>>> context={Rc::clone(tac)} >
-                    <section class="layout">
-                        <div class="console-area">
+                    <div class="console_area">
+                        <div>
                             <Console state={Rc::clone(&self.console_state)} component={Rc::clone(&self.components)} />
-                            <input ref={&self.input.clone()} type="checkbox"/>
                         </div>
-                        <div class="terminal-area">
-                            <textarea ref={&self.terminal.clone()} readonly=true onkeydown={on_keydown}></textarea>
+                    </div>
+                    <div class={"logger_area"}>
+                        <div class={"textarea_header logger_header"}>{"Logger"}</div>
+                        <textarea ref={&self.logger.clone()} readonly=true class={"logger"}></textarea>
+                    </div>
+                    <div class={"logger_switch_area"}>
+                        <div class={"logger_switch_wrap"}>
+                            <input ref={&self.input.clone()} type="checkbox" class={"logger_switch"} name={"logger_switch"}/>
+                            <label for={"logger_switch"}></label>
                         </div>
-                    </section>
+                    </div>
+                    <div class="terminal_area">
+                        <div class={"textarea_header"}>{"Terminal"}</div>
+                        <textarea ref={&self.terminal.clone()} readonly=true onkeydown={on_keydown} class={"terminal"}></textarea>
+                    </div>
                 </ContextProvider<Rc<RefCell<Tac>>>>
             </>
         }

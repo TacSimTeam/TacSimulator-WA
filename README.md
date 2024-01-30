@@ -10,5 +10,9 @@ WebAssembly版のTacSimulatorを実装する
 ├── server
 │   ├── WebAPI側の実装
 │   ...
-
+├── test
+│   ├── パフォーマンス比較用のクイックソートのコードとディスクイメージ
+│   ...
+├── performance_measurement
+│   ├── 実機の計測用コード
 ```

@@ -1,6 +1,7 @@
 use crate::consts::db_url;
 use crate::entities::user::UserDto;
 use crate::repositories::postgres::PgConn;
+use crate::usecases::dmg::create_new_dmg;
 use crate::usecases::user::user_validation;
 use axum::extract::State;
 use axum::http::StatusCode;
@@ -9,7 +10,6 @@ use axum::routing::post;
 use axum::{Json, Router};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
-use crate::usecases::dmg::create_new_dmg;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum ValidationResult {
@@ -74,6 +74,6 @@ pub async fn dmg_name(
                 r#type: ValidationResult::CreateNewUser,
                 dmg_name: Some(created_dmg_path),
             }
-        },
+        }
     };
 }

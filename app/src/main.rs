@@ -1,16 +1,17 @@
 use crate::core::tac_wrap::TacWrap as Tac;
-use crate::util::fetch::{fetch_and_convert_into_vector, get_dmg_path, Dmg, FetchError, update_dmg};
+use crate::util::fetch::{
+    fetch_and_convert_into_vector, get_dmg_path, update_dmg, Dmg, FetchError,
+};
 use app::consts::BASE_URL;
 use std::cell::RefCell;
 use std::rc::Rc;
 use web_sys::InputEvent;
-use yew::{function_component, html, use_state, Callback, Html};
 use yew::html::onclick::Event;
+use yew::{function_component, html, use_state, Callback, Html};
 use yew_hooks::{use_async, UseAsyncHandle};
 
 mod core;
 mod util;
-
 
 #[function_component(Simulator)]
 fn simulator() -> Html {
@@ -53,7 +54,7 @@ fn simulator() -> Html {
             fetch_and_convert_into_vector(BASE_URL.to_string() + &format!("dmg/{}", path)).await
         }
     });
-    let onclick = {
+    let get_dmg = {
         let dmg = dmg.clone();
         Callback::from(move |_| {
             dmg.run();
@@ -74,7 +75,8 @@ fn simulator() -> Html {
         })
     };
     return html! {
-        <>
+        <main class={"layout"}>
+
             {
                 if dmg.loading {
                     html! {
@@ -92,7 +94,6 @@ fn simulator() -> Html {
                     for (i, data) in data.get_data().iter().enumerate() {
                         dmg_data.borrow_mut().push(*data);
                     }
-                    gloo::console::log!(&format!("data {} dmg {}", dmg_data.borrow().len(), data.get_data().len()));
                     html! {
                         <>
                             <Tac dmg={Rc::clone(&dmg_data)}/>
@@ -100,7 +101,7 @@ fn simulator() -> Html {
                     }
                 } else {
                     html! {
-                        <p>{"Loading ..."}</p>
+                        <></>
                     }
                 }
             }
@@ -118,26 +119,28 @@ fn simulator() -> Html {
         {
             if !(*is_login).clone() {
                 html!{
-                    <form>
-                        <div>
+                    <form class={"login_form"}>
+                        <div class={"form_el_wrap"}>
                             <label for={"user_name"}>{"ユーザー名"}</label>
-                            <input type={"text"} name={"user_name"} id={"user_name"} required={true} oninput={user_name_on_input} value={(*user_name).clone()} />
+                            <input type={"text"} name={"user_name"} id={"user_name"} required={true} oninput={user_name_on_input} value={(*user_name).clone()} placeholder={"UserName"} />
                         </div>
-                        <div>
+                        <div class={"form_el_wrap"}>
                             <label for={"user_password"}>{"パスワード"}</label>
-                            <input type={"text"} name={"user_password"} id={"user_password"} required={true} oninput={password_on_input} value={(*password).clone()}/>
+                            <input type={"password"} name={"user_password"} id={"user_password"} required={true} oninput={password_on_input} value={(*password).clone()} placeholder={"PASSWORD"}/>
                         </div>
 
-                        <button {onclick} disabled={dmg.loading}>{"ログイン"}</button>
+                        <button onclick={get_dmg} disabled={dmg.loading} class={"login_btn"}>{"ログイン"}</button>
                     </form>
                 }
             } else {
                 html! {
-                    <button onclick={save_btn_onclick}>{"保存"}</button>
+                    <div class={"save_btn_area"}>
+                        <button onclick={save_btn_onclick} class={"save_btn"}>{"保存"}</button>
+                    </div>
                 }
             }
         }
-        </>
+        </main>
     };
 }
 fn main() {

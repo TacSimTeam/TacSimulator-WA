@@ -1,23 +1,83 @@
-.layout {
-    width: 1200px;
-    height: 100%;
-    display: grid;
-    grid: 'console-area terminal-area' 1fr / 600px auto;
-    gap: 0;
+* {
+    margin: 0;
 }
 
-.console-area {
-    grid-area: console-area;
-}
-
-.terminal-area {
-    grid-area: terminal-area;
-}
-
-.terminal-area textarea {
-    min-width: 600px;
-    width: 100vw;
+body {
+    background-color: #f0f8ff;
+    margin: 0 auto;
+    overflow: hidden;
+    max-width: 1200px;
+    min-width: 400px;
     height: 100vh;
+}
+
+.layout {
+    width: 100%;
+    height: 100vh;
+    display: grid;
+    grid-template:
+        'console_area       console_area  terminal_area' 400px
+        'logger_area        logger_area   terminal_area' 500px
+        'logger_switch_area save_btn_area termional_area' auto / 1fr 1fr auto;
+    gap: 8px;
+    padding: 8px;
+    margin-bottom: 8px;
+}
+
+.console_area {
+    grid-area: console_area;
+}
+
+.terminal_area {
+    grid-area: terminal_area;
+}
+
+.logger_area {
+    grid-area: logger_area;
+}
+
+.logger_switch_area {
+    grid-area: logger_switch_area;
+}
+
+.save_btn_area {
+    grid-area: save_btn_area;
+}
+
+.textarea_header {
+    background-color: #323234;
+    text-align: center;
+    font-weight: bold;
+    padding: 4px;
+    color: #c0c0c0;
+    cursor: pointer;
+    border-top-right-radius: 10px;
+    border-top-left-radius: 10px;
+    user-select: none;
+    font-family: sans-serif;
+}
+
+.logger_header {
+    min-width: 500px;
+}
+
+.logger {
+    width: calc(100% - 4px);
+    border: none;
+    resize: none;
+    background-color: black;
+    color: white;
+    font-family: 'courier new', Futura, Helvetica, '游ゴシック', 'メイリオ', Osaka;
+    font-size: 10px;
+    line-height: 1.2em;
+    height: 400px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+
+.terminal {
+    min-width: 600px;
+    height: calc(100% - 16px);
     border: none;
     resize: none;
     background-color: black;
@@ -25,4 +85,44 @@
     font-family: 'courier new', Futura, Helvetica, '游ゴシック', 'メイリオ', Osaka;
     font-size: 10pt;
     line-height: 1.2em;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+
+.save_btn {
+    padding: 8px;
+    font-size: 1rem;
+    border: none;
+    color: aliceblue;
+    background-color: #007aff;
+    border-radius: 10px;
+}
+
+
+.login_form {
+    text-align: center;
+}
+
+.form_el_wrap > input {
+    margin-top: 1rem;
+    background: gainsboro;
+    width: 50%;
+    border: none;
+    font-size: 1rem;
+    padding: .3rem;
+    border-radius: 5px;
+    color: gray;
+}
+
+.form_el_wrap > input:nth-child(even) {
+    margin-bottom: 1rem;
+}
+
+.login_btn {
+    padding: 8px;
+    font-size: 1rem;
+    border: none;
+    color: aliceblue;
+    background-color: #007aff;
+    border-radius: 10px;
 }

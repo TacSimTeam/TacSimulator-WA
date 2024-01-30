@@ -196,7 +196,8 @@ impl Component for Console {
                 true
             }
             Msg::Clicked((x, y)) => {
-                if self.on_click(x, y) {
+                let rect = self.ctx.cast::<HtmlCanvasElement>().unwrap().get_bounding_client_rect();
+                if self.on_click((x as f64 - rect.left()) as i32, (y as f64 - rect.top()) as i32)  {
                     self.update();
                     return true;
                 }

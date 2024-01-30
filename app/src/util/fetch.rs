@@ -15,7 +15,7 @@ impl Dmg {
     pub fn new() -> Self {
         Self {
             name: "default".to_string(),
-            data: vec![]
+            data: vec![],
         }
     }
     pub fn get_data(&self) -> Vec<u8> {
@@ -83,12 +83,10 @@ pub async fn fetch_and_convert_into_vector(url: String) -> Result<Dmg, FetchErro
 }
 
 pub async fn update_dmg(name: String, data: Vec<u8>) -> Result<(), FetchError> {
-    let dmg = Dmg {
-        name,
-        data
-    };
+    let dmg = Dmg { name, data };
     let client = reqwest::Client::new();
-    let res = client.post(BASE_URL.to_string() + "dmg/update")
+    let res = client
+        .post(BASE_URL.to_string() + "dmg/update")
         .json(&dmg)
         .send()
         .await
