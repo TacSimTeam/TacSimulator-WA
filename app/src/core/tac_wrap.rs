@@ -19,6 +19,7 @@ pub struct TacWrap {
     tac: Rc<RefCell<Tac>>,
     terminal: NodeRef,
     input: NodeRef,
+    logger: NodeRef,
 }
 
 impl TacWrap {
@@ -35,6 +36,7 @@ impl TacWrap {
         let components = Rc::new(RefCell::new(Components::new()));
         let terminal = NodeRef::default();
         let input = NodeRef::default();
+        let logger = NodeRef::default();
         let tac = Rc::new(RefCell::new(Tac::new(
             dmg,
             Rc::clone(&memory),
@@ -44,6 +46,7 @@ impl TacWrap {
             Rc::clone(&components),
             terminal.clone(),
             input.clone(),
+            logger.clone(),
         )));
         Self {
             memory,
@@ -54,6 +57,7 @@ impl TacWrap {
             tac,
             terminal,
             input,
+            logger,
         }
     }
 }
@@ -79,10 +83,11 @@ impl Component for TacWrap {
                     <section class="layout">
                         <div class="console-area">
                             <Console state={Rc::clone(&self.console_state)} component={Rc::clone(&self.components)} />
-                            <input ref={&self.input.clone()} type="checkbox"/>
+                            <input ref={&self.input.clone()} type="checkbox" id={"logger_switch"}/>
+                            <textarea ref={&self.logger.clone()} readonly=true id={"logger"}></textarea>
                         </div>
                         <div class="terminal-area">
-                            <textarea ref={&self.terminal.clone()} readonly=true onkeydown={on_keydown}></textarea>
+                            <textarea ref={&self.terminal.clone()} readonly=true onkeydown={on_keydown} id={"terminal"}></textarea>
                         </div>
                     </section>
                 </ContextProvider<Rc<RefCell<Tac>>>>

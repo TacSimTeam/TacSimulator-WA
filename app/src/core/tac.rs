@@ -63,6 +63,7 @@ impl Tac {
         components: Rc<RefCell<Components>>,
         terminal: NodeRef,
         input: NodeRef,
+        logger_textarea: NodeRef,
     ) -> Self {
         let intr_host = IntrController::new();
         let intr_host_clone = Rc::new(RefCell::new(intr_host));
@@ -74,6 +75,7 @@ impl Tac {
         let logger = Rc::new(RefCell::new(Logger::new(
             Rc::clone(&intr_host_clone),
             input.clone(),
+            logger_textarea.clone(),
         )));
         let timers = Rc::new(RefCell::new(Timer::new(Rc::clone(&intr_host_clone))));
         let terminal_io = Rc::new(RefCell::new(TerminalIO::new(

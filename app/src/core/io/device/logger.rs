@@ -1,10 +1,9 @@
 use crate::core::interrupt::interrupt::Interrupt;
 use crate::core::interrupt::intr_controller::IntrController;
 use crate::core::traits::io::device::io_serial::IIOSerial;
-use gloo::console;
 use std::cell::RefCell;
 use std::rc::Rc;
-use web_sys::HtmlInputElement;
+use web_sys::{HtmlInputElement, HtmlTextAreaElement};
 use yew::NodeRef;
 
 #[derive(PartialEq, Clone)]
@@ -13,15 +12,21 @@ pub struct Logger {
     buf: String,
     intr_sig: Rc<RefCell<IntrController>>,
     logger_switch: NodeRef,
+    logger_textarea: NodeRef,
 }
 
 impl Logger {
-    pub fn new(intr_sig: Rc<RefCell<IntrController>>, logger_switch: NodeRef) -> Self {
+    pub fn new(
+        intr_sig: Rc<RefCell<IntrController>>,
+        logger_switch: NodeRef,
+        logger_textarea: NodeRef,
+    ) -> Self {
         Self {
             sendable_intr_flag: false,
             buf: String::new(),
             intr_sig,
             logger_switch,
+            logger_textarea,
         }
     }
 
@@ -49,7 +54,9 @@ impl IIOSerial for Logger {
                 .replace('\r', "");
             self.buf = self.buf.clone() + &ch;
             if ch.eq("\n") {
-                console::log!(&format!("{}", self.buf.clone()));
+                let logger_textarea = self.logger_textarea.cast::<HtmlTextAreaElement>().unwrap();
+                logger_textarea.set_value(&(logger_textarea.value() + &self.buf.clone()));
+                logger_textarea.set_scroll_top(logger_textarea.scroll_height());
                 self.buf = String::new();
             }
         }

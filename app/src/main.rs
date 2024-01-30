@@ -1,16 +1,17 @@
 use crate::core::tac_wrap::TacWrap as Tac;
-use crate::util::fetch::{fetch_and_convert_into_vector, get_dmg_path, Dmg, FetchError, update_dmg};
+use crate::util::fetch::{
+    fetch_and_convert_into_vector, get_dmg_path, update_dmg, Dmg, FetchError,
+};
 use app::consts::BASE_URL;
 use std::cell::RefCell;
 use std::rc::Rc;
 use web_sys::InputEvent;
-use yew::{function_component, html, use_state, Callback, Html};
 use yew::html::onclick::Event;
+use yew::{function_component, html, use_state, Callback, Html};
 use yew_hooks::{use_async, UseAsyncHandle};
 
 mod core;
 mod util;
-
 
 #[function_component(Simulator)]
 fn simulator() -> Html {
@@ -53,7 +54,7 @@ fn simulator() -> Html {
             fetch_and_convert_into_vector(BASE_URL.to_string() + &format!("dmg/{}", path)).await
         }
     });
-    let onclick = {
+    let get_dmg = {
         let dmg = dmg.clone();
         Callback::from(move |_| {
             dmg.run();
@@ -128,7 +129,7 @@ fn simulator() -> Html {
                             <input type={"text"} name={"user_password"} id={"user_password"} required={true} oninput={password_on_input} value={(*password).clone()}/>
                         </div>
 
-                        <button {onclick} disabled={dmg.loading}>{"ログイン"}</button>
+                        <button onclick={get_dmg} disabled={dmg.loading}>{"ログイン"}</button>
                     </form>
                 }
             } else {
