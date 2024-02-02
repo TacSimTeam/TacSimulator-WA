@@ -17,7 +17,7 @@ body {
     display: grid;
     grid-template:
         'console_area       console_area  terminal_area' 400px
-        'logger_area        logger_area   terminal_area' 500px
+        'logger_area        logger_area   terminal_area' 400px
         'logger_switch_area save_btn_area termional_area' auto / 1fr 1fr auto;
     gap: 8px;
     padding: 8px;
@@ -70,14 +70,14 @@ body {
     font-family: 'courier new', Futura, Helvetica, '游ゴシック', 'メイリオ', Osaka;
     font-size: 10px;
     line-height: 1.2em;
-    height: 400px;
+    height: calc(100% - 32px);
     border-bottom-right-radius: 10px;
     border-bottom-left-radius: 10px;
 }
 
 .terminal {
     min-width: 600px;
-    height: calc(100% - 16px);
+    height: calc(100% - 32px);
     border: none;
     resize: none;
     background-color: black;
@@ -125,4 +125,13 @@ body {
     color: aliceblue;
     background-color: #007aff;
     border-radius: 10px;
+}
+
+.logger_switch_label {
+    font-weight: bold;
+    font-family: sans-serif;
+}
+
+.logger_switch {
+    background-color: #007aff;
 }

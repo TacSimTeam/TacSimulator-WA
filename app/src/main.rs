@@ -5,6 +5,7 @@ use crate::util::fetch::{
 use app::consts::BASE_URL;
 use std::cell::RefCell;
 use std::rc::Rc;
+use gloo::dialogs::alert;
 use web_sys::InputEvent;
 use yew::html::onclick::Event;
 use yew::{function_component, html, use_state, Callback, Html};
@@ -65,6 +66,7 @@ fn simulator() -> Html {
         let user_name = (*user_name).clone();
         async move {
             let data = clone.borrow().clone();
+            gloo::console::log!(&format!("{}", data.len()));
             update_dmg(user_name, data).await
         }
     });
@@ -72,6 +74,7 @@ fn simulator() -> Html {
         let save = save.clone();
         Callback::from(move |_| {
             save.run();
+            alert("保存しました");
         })
     };
     return html! {

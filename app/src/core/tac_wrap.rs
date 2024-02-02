@@ -91,8 +91,8 @@ impl Component for TacWrap {
                     </div>
                     <div class={"logger_switch_area"}>
                         <div class={"logger_switch_wrap"}>
+                            <label for={"logger_switch"} class={"logger_switch_label"}>{"logger"}</label>
                             <input ref={&self.input.clone()} type="checkbox" class={"logger_switch"} name={"logger_switch"}/>
-                            <label for={"logger_switch"}></label>
                         </div>
                     </div>
                     <div class="terminal_area">

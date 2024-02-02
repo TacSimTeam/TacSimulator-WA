@@ -4,6 +4,7 @@ use anyhow::Result;
 use axum::extract::Path;
 use axum::response::IntoResponse;
 use axum::Json;
+use reqwest::StatusCode;
 use std::fs::File;
 use std::io::{Read, Write};
 
@@ -21,21 +22,15 @@ pub async fn get_dmg(Path(path): Path<String>) -> impl IntoResponse {
 
 fn update_dmg_data(dmg: Dmg) -> Result<()> {
     let dmg_path = BASE_PATH.to_owned() + &*dmg.get_name() + ".dmg";
-    std::fs::remove_file(dmg_path.clone())?;
-    std::fs::copy(
-        &format!("{}template.dmg", BASE_PATH),
-        &format!("{}{}.dmg", BASE_PATH, dmg.get_name()),
-    )
-    .unwrap();
-    let mut fd = File::create(dmg_path.clone()).unwrap();
-    fd.write_all(dmg.get_data()).unwrap();
+    let mut fd = File::create(dmg_path.clone())?;
+    fd.write_all(dmg.get_data())?;
     Ok(())
 }
 
-pub async fn update_dmg(Json(dmg): Json<Dmg>) -> String {
+pub async fn update_dmg(Json(dmg): Json<Dmg>) -> impl IntoResponse {
     match update_dmg_data(dmg) {
-        Ok(_) => "success".to_string(),
-        Err(_) => "fs error".to_string(),
+        Ok(_) => (StatusCode::OK, "success".to_string()).into_response(),
+        Err(_) => (StatusCode::BAD_REQUEST, "fs error".to_string()).into_response(),
     }
 }
 
