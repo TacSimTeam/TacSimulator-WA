@@ -1,0 +1,20 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+actor ユーザー
+
+autonumber
+== ユーザーごとに用意されたディスクイメージの名前を取得 ==
+ユーザー -> ブラウザ: ユーザー名とパスワードを入力
+ブラウザ -> Webサーバー: request(POST: username, password)
+Webサーバー -> DB: request(in: username)
+DB --> Webサーバー: response(out: username, password)
+Webサーバー -> Webサーバー: validates
+Webサーバー --> ブラウザ: response
+
+== ディスクイメージのデータを取得 ==
+ブラウザ -> Webサーバー: request(GET: path)
+Webサーバー --> ブラウザ: response
+ブラウザ --> ユーザー: シミュレータの画面を表示
+
+@enduml
