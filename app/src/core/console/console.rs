@@ -49,9 +49,15 @@ impl Console {
     pub fn on_click(&mut self, x: i32, y: i32) -> bool {
         let val = self.components.borrow().switch_state();
         let mut is_click = false;
-        for (index, b) in self.components.borrow().buttons.iter().enumerate() {
+        let buttons = self.components.borrow().buttons.clone();
+        for (index, b) in buttons.iter().enumerate() {
             if b.is_btn_clicked(x as f64, y as f64) {
                 if index == 2 || index == 3 || index == 4 {
+                    if index == 3 {
+                        self.components.borrow_mut().set_run_led_state(true);
+                    } else {
+                        self.components.borrow_mut().set_run_led_state(false);
+                    }
                     b.on_click(ButtonArg::Tac(&mut self.tac_ref.borrow_mut()), 0);
                 } else {
                     b.on_click(ButtonArg::Console(&mut self.state.borrow_mut()), val);

@@ -25,7 +25,7 @@ fn simulator() -> Html {
         Callback::from(move |e: InputEvent| {
             let value = e.data();
             match value {
-                None => user_name.set("".to_string()),
+                None => user_name.set(String::new()),
                 Some(value) => user_name.set((*user_name).clone() + &value),
             }
         })
@@ -36,7 +36,7 @@ fn simulator() -> Html {
         Callback::from(move |e: InputEvent| {
             let value = e.data();
             match value {
-                None => password.set("".to_string()),
+                None => password.set(String::new()),
                 Some(value) => password.set((*password).clone() + &value),
             }
         })
