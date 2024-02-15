@@ -1,0 +1,80 @@
+openapi: 3.0.3
+info:
+  title: TaCSimulator-API
+  description: TaCシミュレータのユーザーとディスクイメージを管理するAPI
+  version: 1.0.0
+servers:
+  - url: 'http://localhost:3000'
+tags:
+  - name: user
+    description: ユーザー周辺のAPI
+  - name: dmg
+    description: ディスクイメージ周辺のAPI
+paths:
+  /user/dmg_name:
+    post:
+      tags:
+        - user
+      summary: ユーザー情報を送信してディスクイメージのパスを取得
+      requestBody:
+        description: user information
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: {type: string, example: "user" }
+                password: {type: string, example: "passw0rd" }
+        required: true
+      responses:
+        "200":
+          description: "ディスクイメージの取得に成功"
+        "201":
+          description: "ユーザーとディスクイメージの新規作成に成功"
+        "401":
+          description: "パスワードが間違っている"
+
+  /dmg/{path}:
+    get:
+      tags:
+        - dmg
+      summary: ディスクイメージを取得
+      parameters:
+        - name: "path"
+          in: path
+          description: "ディスクイメージのパス"
+          required: true
+          content:
+            text/plain:
+              schema:
+                type: string
+      responses:
+        "200":
+          description: "ディスクイメージの取得に成功"
+        "400":
+          description: "ディスクイメージが存在しない"
+
+  /dmg/update:
+    post:
+      tags:
+        - dmg
+      summary: ディスクイメージの更新
+      requestBody:
+        description: dmg information
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: {type: string, example: "dmgName" }
+                data:
+                  type: array
+                  example: [0, 0, 0]
+                  items:
+                    type: integer
+        required: true
+      responses:
+        "200":
+          description: "ディスクイメージの更新に成功"
+        "400":
+          description: "ディスクイメージが存在しない"
